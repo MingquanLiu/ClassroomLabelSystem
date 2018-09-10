@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    .canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        background-color:rgba(255,0,0,0.5);
+    }
+</style>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to the classroom labeling system</title>
+    <!--<div style="text-align:center" xmlns="">-->
+        <!--<h1>-->
+            <!--Welcome to the Classroom Video Labelling System!-->
+        <!--</h1>-->
+    <!--</div>-->
+    <!--<h2>Here is an embedded HTML5 video: </h2>-->
+
+</head>
+<body>
+<div class="container" id = "container">
+    <video class="video" id="vplayer"  controls
+           src="http://techslides.com/demos/sample-videos/small.mp4" autoplay onplay="resize_canvas(this)">
+    </video>
+    <canvas class="canvas" id="myCanvas">
+        Your browser does not support the HTML5 canvas tag.
+    </canvas>
+</div>
+
+<script>
+    function resize_canvas(element)
+    {
+        var w = element.offsetWidth;
+        var h = element.offsetHeight;
+        var top = element.style.top;
+        var left = element.style.left;
+        var cv = document.getElementById("myCanvas");
+        cv.width = w;
+        cv.height =h;
+        cv.top = top;
+        cv.left = left;
+
+        var ctx = cv.getContext("2d");
+        ctx.moveTo(0,0);
+        ctx.lineTo(200,100);
+        ctx.stroke();
+    }
+</script>
+</body>
+</html>
