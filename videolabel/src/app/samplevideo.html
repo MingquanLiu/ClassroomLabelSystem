@@ -1,12 +1,44 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to the Classroom Video Labelling System!
-  </h1>
-</div>
-<h2>Here is an embedded HTML5 video: </h2>
-<video width="720" height="480" controls>
-  <source src="SampleVideo.mp4" type="video/mp4">
-</video>
+
+<head>
+  <script src="libraries/jquery.js" type="text/javascript"></script>
+  <script src="libraries/fabric.js" type="text/javascript"></script>
+  <script>
+    var canvas = new fabric.Canvas('vcanvas');
+    function addAnnotation() {
+      var rect = new fabric.Rect({
+        left: 100,
+        top: 100,
+        fill: 'red',
+        width: 20,
+        height: 20,
+      });
+      canvas.add(rect); // add object
+    }
+
+    function removeAnnotation() {
+      if (canvas.getObjects().length > 0) {
+        canvas.remove(canvas.item(0))
+      }
+    }
+  </script>
+
+</head>
+
+<body>
+  <div style="text-align:center" xmlns="">
+    <h1>
+      Welcome to the Classroom Video Labelling System!
+    </h1>
+  </div>
+  <h2>Here is an embedded HTML5 video: </h2>
+  <button type="button" onclick="addAnnotation">Add an annotation!</button>
+  <button type="button" onclick="removeAnnotation">Remove the oldest annotation!</button>
+  <br />
+  <br />
+  <video id="vplayer" width="720" height="480" controls>
+    <source src="SampleVideo.mp4" type="video/mp4">
+  </video>
+</body>
+
 
 
