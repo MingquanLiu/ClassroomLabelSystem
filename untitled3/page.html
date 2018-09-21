@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    .canvas {
+        position: absolute;
+        top: 128px;
+        left: 8px;
+        z-index: 10;
+        background-color:rgba(255,0,0,0.5);
+    }
+    .container {
+        height: 100%;
+        width: 100%;
+        display: flex;
+    }
+    .subcontainer {
+        width: 50%;
+    }
+
+    .moodimg {
+        width: 128px;
+        height: 128px;
+    }
+
+</style>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to the classroom labeling system</title>
+    <div style="text-align:center" xmlns="">
+        <h1>
+            Welcome to the Classroom Video Labelling System!
+        </h1>
+    </div>
+    <h2>Here is your video to annotate: </h2>
+
+</head>
+<body>
+<div class="container" id = "container">
+    <div id="left" class="subcontainer">
+        <video class="video" id="vplayer"  controls
+               src="http://techslides.com/demos/sample-videos/small.mp4" onplay="resize_canvas(this)">
+        </video>
+        <canvas class="canvas" id="myCanvas">
+            Your browser does not support the HTML5 canvas tag.
+        </canvas>
+        <button id="drawbutton" onclick="draw_box">Add an annotation </button>
+        <br>
+        <button id="playbutton" onclick="play_jquery()">
+            Play/Pause Video
+        </button>
+        <button id="restartbutton" onclick="restart_video()">
+            Restart!
+        </button>
+    </div>
+    <div id="right" class="subcontainer">
+        <img id="happy" src="https://themuslimtimesdotinfodotcom.files.wordpress.com/2013/09/happy-face.jpg?w=300"
+             class="moodimg"></img>
+        <br>
+        <br>
+        <img id="sad" src="https://i.ebayimg.com/images/g/~EwAAOxycGJSUJsx/s-l300.jpg"
+             class="moodimg"></img>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/2.3.6/fabric.min.js"></script>
+<script>
+
+    $(document).on('click','#happy', select_mood_image($("#happy")));
+    $(document).on('click','#sad', select_mood_image($("#sad")));
+
+    function select_mood_image(element) {
+        if (element.filter.opacity < 1.0) {
+            element.filter.opacity = 1.0
+        } else if (element.filter.opacity == 1.0) {
+            element.filter.opacity = 0.33
+        }
+        element.load();
+        alert("Mood image (de)selected!")
+    }
+
+    function play_jquery() {
+        $('#playbutton').click(function () {
+            if ($("#vplayer").get(0).paused) {
+                $("#vplayer").get(0).play();
+            } else {
+                $("#vplayer").get(0).pause();
+            }
+            $("#vplayer").load()
+        });
+    }
+
+    function restart_video(){
+        $('#restartbutton').click(function () {
+            $("#vplayer").currentTime = 0.0
+            $("#vplayer").load()
+        })
+        alert("You're restarting!")
+    }
+
+    function resize_canvas(element)
+    {
+        var w = element.offsetWidth;
+        var h = element.offsetHeight;
+        var top = element.style.top;
+        var left = element.style.left;
+        var cv = document.getElementById("myCanvas");
+        cv.width = w;
+        cv.height =h;
+        cv.top = top;
+        cv.left = left;
+
+        var ctx = cv.getContext("2d");
+        ctx.moveTo(0,0);
+        ctx.lineTo(200,100);
+        ctx.stroke();
+    }
+
+</script>
+</body>
+</html>
