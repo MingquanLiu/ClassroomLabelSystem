@@ -21,6 +21,35 @@
         width: 128px;
         height: 128px;
     }
+    .slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 15px;
+        border-radius: 5px;
+        background: #d3d3d3;
+        outline: none;
+        opacity: 0.7;
+        -webkit-transition: .2s;
+        transition: opacity .2s;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #4CAF50;
+        cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #4CAF50;
+        cursor: pointer;
+    }
 
 </style>
 
@@ -35,23 +64,31 @@
     <h2>Here is your video to annotate: </h2>
 
 </head>
+
 <body>
 <div class="container" id = "container">
     <div id="left" class="subcontainer">
         <video class="video" id="vplayer"  oncontextmenu="return false;"
-               src="http://techslides.com/demos/sample-videos/small.mp4" onplay="resize_canvas(this)">
+               src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" onplay="resize_canvas(this)">
         </video>
         <canvas class="canvas" id="myCanvas">
             Your browser does not support the HTML5 canvas tag.
         </canvas>
         <button id="drawbutton" onclick="draw_box">Add an annotation </button>
-        <br>
         <button id="playbutton" onclick="play_jquery()">
             Play/Pause Video
         </button>
         <button id="restartbutton" onclick="restart_video()">
             Restart!
         </button>
+        <button id="rewindbutton" onclick="rewind_video()">
+            Rewind!
+        </button>
+
+        <div class="slidecontainer" onchange="show_slider_value()">
+            <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+        </div>
+        <textarea  id="demo" > 18</textarea>
     </div>
     <div id="right" class="subcontainer">
         <img id="happy" src="https://themuslimtimesdotinfodotcom.files.wordpress.com/2013/09/happy-face.jpg?w=300"
@@ -80,6 +117,20 @@
 
     $(document).on('click','#happy', select_mood_image($("#happy")));
     $(document).on('click','#sad', select_mood_image($("#sad")));
+    function show_slider_value() {
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+        var mediaElement =  $("#vplayer").get(0);
+        var duration = mediaElement.duration;
+        output.innerHTML = parseFloat(slider.value/100 * duration).toPrecision(3); // Display the default slider value
+
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function() {
+            var time = parseFloat(slider.value/100 * duration).toPrecision(3)
+            output.innerHTML = time
+            mediaElement.currentTime = time
+        }
+    }
 
     function select_mood_image(element) {
         if (element.filter.opacity < 1.0) {
@@ -92,24 +143,36 @@
     }
 
     function play_jquery() {
-        $('#playbutton').click(function () {
-            if ($("#vplayer").get(0).paused) {
-                $("#vplayer").get(0).play();
-            } else {
+        // $('#playbutton').click(function () {
+            if (!$("#vplayer").get(0).paused) {
                 $("#vplayer").get(0).pause();
+            } else {
+                $("#vplayer").get(0).play();
             }
             $("#vplayer").load()
-        });
+        // });
     }
 
     function restart_video(){
-        $('#restartbutton').click(function () {
-            $("#vplayer").currentTime = 0.0
+        // $('#restartbutton').click(function () {
+            $("#vplayer").get(0).currentTime = 0.0
+            $("#vplayer").get(0).play();
             $("#vplayer").load()
-        })
-        alert("You're restarting!")
+        // })
     }
+    
+    function rewind_video() {
+        //Create a variable to manage video elements
+        var mediaElement =  $("#vplayer").get(0);
 
+        //Adjust playhead (currentTime) to 0 if elapsed time is less than 2 seconds else adjust it to the elapsed time minus 2 seconds
+        if(mediaElement.currentTime < 2) {
+            mediaElement.currentTime = 0;
+        } else {
+            mediaElement.currentTime = mediaElement.currentTime-2;
+        }
+        $("#vplayer").load()
+    }
     function db_button() {
         AWS.config.region = 'us-east-2';
         AWS.config.credentials =
