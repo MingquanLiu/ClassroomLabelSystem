@@ -38,7 +38,7 @@
 <body>
 <div class="container" id = "container">
     <div id="left" class="subcontainer">
-        <video class="video" id="vplayer"  controls
+        <video class="video" id="vplayer"  oncontextmenu="return false;"
                src="http://techslides.com/demos/sample-videos/small.mp4" onplay="resize_canvas(this)">
         </video>
         <canvas class="canvas" id="myCanvas">
@@ -60,11 +60,23 @@
         <br>
         <img id="sad" src="https://i.ebayimg.com/images/g/~EwAAOxycGJSUJsx/s-l300.jpg"
              class="moodimg"></img>
+        <br>
+        <br>
+        <input id="dbtxt" type="text">
+        <button id="dbbutton" onclick="db_button()">
+            Add an entry to the db!
+        </button>
     </div>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/2.3.6/fabric.min.js"></script>
+<script src="paper-full.js"></script>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+
 <script>
+
+    // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
+    // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
+    // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
 
     $(document).on('click','#happy', select_mood_image($("#happy")));
     $(document).on('click','#sad', select_mood_image($("#sad")));
@@ -96,6 +108,15 @@
             $("#vplayer").load()
         })
         alert("You're restarting!")
+    }
+
+    function db_button() {
+        AWS.config.region = 'us-east-2';
+        AWS.config.credentials =
+            new AWS.CognitoIdentityCredentials({IdentityPoolId: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"});
+
+        var db = new AWS.DynamoDB();
+        $("#dbtxt").value = ""
     }
 
     function resize_canvas(element)
