@@ -50,6 +50,10 @@
         background: #4CAF50;
         cursor: pointer;
     }
+    .view{
+        width: 100%;
+        height: 15px;
+    }
 
 </style>
 
@@ -69,7 +73,7 @@
 <div class="container" id = "container">
     <div id="left" class="subcontainer">
         <video class="video" id="vplayer"  oncontextmenu="return false;"
-               src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" onplay="resize_canvas(this)">
+               src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" onplay="resize_canvas(this)" onplaying="change_slider(this)">
         </video>
         <canvas class="canvas" id="myCanvas">
             Your browser does not support the HTML5 canvas tag.
@@ -84,11 +88,19 @@
         <button id="rewindbutton" onclick="rewind_video()">
             Rewind!
         </button>
+        <div id="bottom" class="subcontainer">
+            <div class="slidecontainer" onchange="show_slider_value()">
+                <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+            </div>
+            <button id="lastFrame" onclick="change_frame(false)">
+                Last Frame!
+            </button>
+            <button id="nextFrame" onclick="change_frame(true)">
+                Next Frame!
+            </button>
 
-        <div class="slidecontainer" onchange="show_slider_value()">
-            <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+            <view class = "view" id="demo" > 18</view>
         </div>
-        <textarea  id="demo" > 18</textarea>
     </div>
     <div id="right" class="subcontainer">
         <img id="happy" src="https://themuslimtimesdotinfodotcom.files.wordpress.com/2013/09/happy-face.jpg?w=300"
@@ -140,6 +152,7 @@
         }
         element.load();
         alert("Mood image (de)selected!")
+        $("#vplayer").load()
     }
 
     function play_jquery() {
@@ -153,6 +166,26 @@
         // });
     }
 
+    function change_frame(isNext){
+        var cTime = $("#vplayer").get(0).currentTime;
+        var duration = $("#vplayer").get(0).duration;
+        var changed_time;
+        if(isNext){
+            changed_time = cTime+5;
+        }else{
+            changed_time = cTime-5;
+        }
+
+        if(changed_time>duration){
+            changed_time = duration;
+        }
+        if(changed_time<0){
+            changed_time = 0;
+        }
+        $("#vplayer").get(0).currentTime = changed_time
+        $("#vplayer").load()
+
+    }
     function restart_video(){
         // $('#restartbutton').click(function () {
             $("#vplayer").get(0).currentTime = 0.0
@@ -184,6 +217,7 @@
 
     function resize_canvas(element)
     {
+
         var w = element.offsetWidth;
         var h = element.offsetHeight;
         var top = element.style.top;
@@ -198,6 +232,15 @@
         ctx.moveTo(0,0);
         ctx.lineTo(200,100);
         ctx.stroke();
+    }
+
+    function change_slider(element){
+        var time = $("#vplayer").get(0).currentTime;
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+        slider.input(time);
+        output.innerHTML = time
+
     }
 
 </script>
