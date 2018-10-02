@@ -73,7 +73,7 @@
 <div class="container" id = "container">
     <div id="left" class="subcontainer">
         <video class="video" id="vplayer"  oncontextmenu="return false;"
-               src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" onplay="resize_canvas(this)" ontimeupdate="change_slider(this)">
+               src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider(this)">
         </video>
         <canvas class="canvas" id="myCanvas">
             Your browser does not support the HTML5 canvas tag.
@@ -118,9 +118,53 @@
     </div>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="paper-full.js"></script>
+<script src="paper-full.js" type="text/javascript"></script>
 <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+<script type="text/javascript">
+    globals = {};
+    paper.install(window)
+    window.onload(function() {
+        paper.setup('myCanvas')
+        let videoplayer = $('#vplayer').get(0)
+        resize_canvas(videoplayer);
+        var tool = new Tool();
+        var rectpath;
+        var topleftX;
+        var botright;
 
+        tool.onMouseDown = function (event) {
+            topleft = event.pageX;
+
+        }
+
+
+
+        // canvas.addEventListener('click', function(e) {
+        //     const x = e.pageX;
+        //     const y = e.pageY;
+        //     document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
+        //     // globals.drawRect(x, y, 50, 50);
+        // });
+
+    })
+</script>
+
+<script type="text/paperscript" canvas="myCanvas">
+
+        drawRect(x,y, width, height) {
+            var rectangle = new Rectangle(new Point(x, y), new Point(width, height));
+            var path = new Path.Rectangle(rectangle);
+            path.fillColor = '#e9e9ff';
+            path.selected = true;
+
+            path.onClick = function(event) {
+                if (this.fillColor == 'blue') {
+                    this.fillColor = 'green'
+                }
+                else this.fillColor = 'blue';
+            }
+        }
+</script>
 <script>
 
     // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
@@ -144,17 +188,6 @@
             mediaElement.pause()
             $("#vplayer").load()
         }
-    }
-
-    function select_mood_image(element) {
-        if (element.filter.opacity < 1.0) {
-            element.filter.opacity = 1.0
-        } else if (element.filter.opacity == 1.0) {
-            element.filter.opacity = 0.33
-        }
-        element.load();
-        alert("Mood image (de)selected!")
-        $("#vplayer").load()
     }
 
     function play_jquery() {
@@ -247,6 +280,13 @@
 
     }
 
+    let canvas = $('#myCanvas').get(0)
+    canvas.addEventListener('click', function(e) {
+        const x = e.pageX;
+        const y = e.pageY;
+        document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
+        //globals.drawRect(x, y, 50, 50);
+    });
 </script>
 </body>
 </html>
