@@ -69,7 +69,7 @@
 
 </head>
 
-<body>
+<body onload=resize_canvas()>
 <div class="container" id = "container">
     <div id="left" class="subcontainer">
         <video class="video" id="vplayer"  oncontextmenu="return false;"
@@ -125,8 +125,6 @@
     paper.install(window)
     window.onload(function() {
         paper.setup('myCanvas')
-        let videoplayer = $('#vplayer').get(0)
-        resize_canvas(videoplayer);
         var tool = new Tool();
         var rectpath;
         var topleftX;
@@ -134,19 +132,11 @@
 
         tool.onMouseDown = function (event) {
             topleft = event.pageX;
-
         }
 
-
-
-        // canvas.addEventListener('click', function(e) {
-        //     const x = e.pageX;
-        //     const y = e.pageY;
-        //     document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
-        //     // globals.drawRect(x, y, 50, 50);
-        // });
-
     })
+    let videoplayer = $('#vplayer').get(0);
+    resize_canvas(videoplayer);
 </script>
 
 <script type="text/paperscript" canvas="myCanvas">
@@ -179,7 +169,6 @@
         var mediaElement =  $("#vplayer").get(0);
         var duration = mediaElement.duration;
         output.innerHTML = parseFloat(slider.value/100 * duration).toPrecision(3)+":"+duration.toPrecision(3); // Display the default slider value
-
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function() {
             var time = parseFloat(slider.value/100 * duration).toPrecision(3)
@@ -250,9 +239,9 @@
         $("#dbtxt").value = ""
     }
 
-    function resize_canvas(element)
+    function resize_canvas()
     {
-
+        var element =  $("#vplayer").get(0);
         var w = element.offsetWidth;
         var h = element.offsetHeight;
         var top = element.style.top;
