@@ -73,7 +73,7 @@
 <div class="container" id = "container">
     <div id="left" class="subcontainer">
         <video class="video" id="vplayer"  oncontextmenu="return false;"
-               src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" onplay="resize_canvas(this)" onplaying="change_slider(this)">
+               src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" onplay="resize_canvas(this)" ontimeupdate="change_slider(this)">
         </video>
         <canvas class="canvas" id="myCanvas">
             Your browser does not support the HTML5 canvas tag.
@@ -134,13 +134,15 @@
         var output = document.getElementById("demo");
         var mediaElement =  $("#vplayer").get(0);
         var duration = mediaElement.duration;
-        output.innerHTML = parseFloat(slider.value/100 * duration).toPrecision(3); // Display the default slider value
+        output.innerHTML = parseFloat(slider.value/100 * duration).toPrecision(3)+":"+duration.toPrecision(3); // Display the default slider value
 
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function() {
             var time = parseFloat(slider.value/100 * duration).toPrecision(3)
-            output.innerHTML = time
+            output.innerHTML = time+":"+duration.toPrecision(3)
             mediaElement.currentTime = time
+            mediaElement.pause()
+            $("#vplayer").load()
         }
     }
 
@@ -236,10 +238,12 @@
 
     function change_slider(element){
         var time = $("#vplayer").get(0).currentTime;
+        var duration = $("#vplayer").get(0).duration;
         var slider = document.getElementById("myRange");
         var output = document.getElementById("demo");
-        slider.input(time);
-        output.innerHTML = time
+        var percentage = parseFloat(time/duration).toPrecision(3)*100
+        slider.value = percentage;
+        output.innerHTML = time.toPrecision(3)+":"+duration.toPrecision(3)
 
     }
 
