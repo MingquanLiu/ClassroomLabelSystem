@@ -73,14 +73,14 @@
 <div class="container" id = "container">
     <div id="left" class="subcontainer">
         <video class="video" id="vplayer"  oncontextmenu="return false;"
-               src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider(this)">
+               src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider()" onended="video_ended()">
         </video>
         <canvas class="canvas" id="myCanvas">
             Your browser does not support the HTML5 canvas tag.
         </canvas>
         <button id="drawbutton" onclick="draw_box">Add an annotation </button>
         <button id="playbutton" onclick="play_jquery()">
-            Play/Pause Video
+            Play
         </button>
         <button id="restartbutton" onclick="restart_video()">
             Restart!
@@ -89,7 +89,7 @@
             Rewind!
         </button>
         <div id="bottom" class="subcontainer">
-            <div class="slidecontainer" onchange="show_slider_value()">
+            <div class="slidecontainer" oninput="show_slider_value()">
                 <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
             </div>
             <button id="lastFrame" onclick="change_frame(false)">
@@ -102,20 +102,20 @@
             <view class = "view" id="demo" > 18</view>
         </div>
     </div>
-    <div id="right" class="subcontainer">
-        <img id="happy" src="https://themuslimtimesdotinfodotcom.files.wordpress.com/2013/09/happy-face.jpg?w=300"
-             class="moodimg"></img>
-        <br>
-        <br>
-        <img id="sad" src="https://i.ebayimg.com/images/g/~EwAAOxycGJSUJsx/s-l300.jpg"
-             class="moodimg"></img>
-        <br>
-        <br>
-        <input id="dbtxt" type="text">
-        <button id="dbbutton" onclick="db_button()">
-            Add an entry to the db!
-        </button>
-    </div>
+    <!--<div id="right" class="subcontainer">-->
+        <!--<img id="happy" src="https://themuslimtimesdotinfodotcom.files.wordpress.com/2013/09/happy-face.jpg?w=300"-->
+             <!--class="moodimg"></img>-->
+        <!--<br>-->
+        <!--<br>-->
+        <!--<img id="sad" src="https://i.ebayimg.com/images/g/~EwAAOxycGJSUJsx/s-l300.jpg"-->
+             <!--class="moodimg"></img>-->
+        <!--<br>-->
+        <!--<br>-->
+        <!--<input id="dbtxt" type="text">-->
+        <!--<button id="dbbutton" onclick="db_button()">-->
+            <!--Add an entry to the db!-->
+        <!--</button>-->
+    <!--</div>-->
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="paper-full.js" type="text/javascript"></script>
@@ -135,8 +135,6 @@
         }
 
     })
-    let videoplayer = $('#vplayer').get(0);
-    resize_canvas(videoplayer);
 </script>
 
 <script type="text/paperscript" canvas="myCanvas">
@@ -160,31 +158,33 @@
     // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
     // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
     // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
+    function video_ended() {
+        // What you want to do after the event
+        document.getElementById("playbutton").innerText = "Play"
+    }
 
-    $(document).on('click','#happy', select_mood_image($("#happy")));
-    $(document).on('click','#sad', select_mood_image($("#sad")));
-    function show_slider_value() {
+    function show_slider_value(){
+        document.getElementById("playbutton").innerText = "Play"
         var slider = document.getElementById("myRange");
         var output = document.getElementById("demo");
         var mediaElement =  $("#vplayer").get(0);
         var duration = mediaElement.duration;
-        output.innerHTML = parseFloat(slider.value/100 * duration).toPrecision(3)+":"+duration.toPrecision(3); // Display the default slider value
-        // Update the current slider value (each time you drag the slider handle)
-        slider.oninput = function() {
-            var time = parseFloat(slider.value/100 * duration).toPrecision(3)
-            output.innerHTML = time+":"+duration.toPrecision(3)
-            mediaElement.currentTime = time
-            mediaElement.pause()
-            $("#vplayer").load()
-        }
+        var time = parseFloat(slider.value/100 * duration)
+        output.innerHTML = time.toFixed(2)+":"+duration.toFixed(2)
+        mediaElement.currentTime = time
+        mediaElement.pause()
+        $("#vplayer").load()
+
     }
 
     function play_jquery() {
         // $('#playbutton').click(function () {
             if (!$("#vplayer").get(0).paused) {
                 $("#vplayer").get(0).pause();
+                document.getElementById("playbutton").innerText = "Play "
             } else {
                 $("#vplayer").get(0).play();
+                document.getElementById("playbutton").innerText = "Pause"
             }
             $("#vplayer").load()
         // });
@@ -207,6 +207,8 @@
             changed_time = 0;
         }
         $("#vplayer").get(0).currentTime = changed_time
+        $("#vplayer").get(0).pause();
+        document.getElementById("playbutton").innerText = "Play"
         $("#vplayer").load()
 
     }
@@ -252,20 +254,20 @@
         cv.top = top;
         cv.left = left;
 
-        var ctx = cv.getContext("2d");
-        ctx.moveTo(0,0);
-        ctx.lineTo(200,100);
-        ctx.stroke();
+        var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+        slider.value = 0
+        output.innerHTML = parseFloat(0).toFixed(2)+":"+element.duration.toFixed(2)
     }
 
-    function change_slider(element){
+    function change_slider(){
         var time = $("#vplayer").get(0).currentTime;
         var duration = $("#vplayer").get(0).duration;
         var slider = document.getElementById("myRange");
         var output = document.getElementById("demo");
-        var percentage = parseFloat(time/duration).toPrecision(3)*100
+        var percentage = parseFloat(time/duration).toFixed(2)*100
         slider.value = percentage;
-        output.innerHTML = time.toPrecision(3)+":"+duration.toPrecision(3)
+        output.innerHTML = time.toFixed(2)+":"+duration.toFixed(2)
 
     }
 
