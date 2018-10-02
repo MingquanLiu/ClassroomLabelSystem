@@ -66,8 +66,8 @@
         </h1>
     </div>
     <h2>Here is your video to annotate: </h2>
-
 </head>
+
 
 <body onload=resize_canvas()>
 <div class="container" id = "container">
@@ -78,7 +78,8 @@
         <canvas class="canvas" id="myCanvas">
             Your browser does not support the HTML5 canvas tag.
         </canvas>
-        <button id="drawbutton" onclick="draw_box">Add an annotation </button>
+        <button id="drawbutton">Add an annotation </button>
+        <button id="dltbutton">Add an annotation </button>
         <button id="playbutton" onclick="play_jquery()">
             Play/Pause Video
         </button>
@@ -100,6 +101,8 @@
             </button>
 
             <view class = "view" id="demo" > 18</view>
+            <br>
+            <view id="debugtext">DEBUG</view>
         </div>
     </div>
     <div id="right" class="subcontainer">
@@ -118,51 +121,18 @@
     </div>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="paper-full.js" type="text/javascript"></script>
 <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
-<script type="text/javascript">
-    globals = {};
-    paper.install(window)
-    window.onload(function() {
-        paper.setup('myCanvas')
-        var tool = new Tool();
-        var rectpath;
-        var topleftX;
-        var botright;
+<script src="canvas-draw.js" type="text/javascript"></script>
 
-        tool.onMouseDown = function (event) {
-            topleft = event.pageX;
-        }
-
-    })
-    let videoplayer = $('#vplayer').get(0);
-    resize_canvas(videoplayer);
-</script>
-
-<script type="text/paperscript" canvas="myCanvas">
-
-        drawRect(x,y, width, height) {
-            var rectangle = new Rectangle(new Point(x, y), new Point(width, height));
-            var path = new Path.Rectangle(rectangle);
-            path.fillColor = '#e9e9ff';
-            path.selected = true;
-
-            path.onClick = function(event) {
-                if (this.fillColor == 'blue') {
-                    this.fillColor = 'green'
-                }
-                else this.fillColor = 'blue';
-            }
-        }
-</script>
 <script>
+    offsetX = 8;
+    offsetY = 128;
+    drawmode = false;
 
     // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
     // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
     // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
 
-    $(document).on('click','#happy', select_mood_image($("#happy")));
-    $(document).on('click','#sad', select_mood_image($("#sad")));
     function show_slider_value() {
         var slider = document.getElementById("myRange");
         var output = document.getElementById("demo");
@@ -251,11 +221,6 @@
         cv.height =h;
         cv.top = top;
         cv.left = left;
-
-        var ctx = cv.getContext("2d");
-        ctx.moveTo(0,0);
-        ctx.lineTo(200,100);
-        ctx.stroke();
     }
 
     function change_slider(element){
@@ -266,16 +231,41 @@
         var percentage = parseFloat(time/duration).toPrecision(3)*100
         slider.value = percentage;
         output.innerHTML = time.toPrecision(3)+":"+duration.toPrecision(3)
-
     }
 
     let canvas = $('#myCanvas').get(0)
-    canvas.addEventListener('click', function(e) {
-        const x = e.pageX;
-        const y = e.pageY;
-        document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
-        //globals.drawRect(x, y, 50, 50);
+    let drawbtn = $('#drawbutton').get(0)
+
+    drawbtn.addEventListener('click', function(e) {
+        if(drawmode == true){
+            drawmode = false;
+            document.getElementById('debugtext').innerHTML = "DRAW MODE OFF";
+        } else {
+            drawmode = true;
+            canvas.style.cursor = "crosshair";
+            document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
+        }
     });
+
+    canvas.addEventListener('click', function(e) {
+        if (drawmode == true) {
+            const x = e.pageX - offsetX;
+            const y = e.pageY - offsetY;
+            document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
+            var context = canvas.getContext('2d');
+            context.beginPath()
+            context.rect(x, y, 30, 30)
+            context.fillStyle = 'yellow';
+            context.fill();
+            context.lineWidth = 2;
+            context.strokeStyle = 'black';
+            context.stroke();
+            canvas.style.cursor = "pointer"
+            drawmode = false;
+        }
+    });
+
+
 </script>
 </body>
 </html>
