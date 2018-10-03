@@ -78,7 +78,7 @@ function rewind_video() {
 }
 
 function resize_canvas() {
-    $("#myCanvas").css("position", "absolute");
+    $("#myCanvas").css("position", "relative");
     $("#myCanvas").css("width", $("#vcontainer").width());
     $("#myCanvas").css("height", $("#vcontainer").height());
     $("#myCanvas").css("top", $("#vcontainer").css('top'));
@@ -88,8 +88,9 @@ function resize_canvas() {
 
     var slider = document.getElementById("myRange");
     var output = document.getElementById("demo");
+
+    output.innerHTML = parseFloat(0).toFixed(2) + " / " + $("#vplayer").get(0).duration.toFixed(2)
     slider.value = 0
-    output.innerHTML = parseFloat(0).toFixed(2) + " / " + element.duration.toFixed(2)
 }
 
 function change_slider() {
@@ -111,47 +112,52 @@ function add_div() {
 
 
 $(document).ready(function() {
-    let offsetX = 8;
-    let offsetY = 128;
     let drawmode = false;
+
     // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
     // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
     // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
 
     $('#slider').on('input', show_slider_value);
 
-    $('#drawbutton').on('click', function (e) {
-        if (drawmode == true) {
-            drawmode = false;
-            canvas.style.cursor = "default";
-            document.getElementById('debugtext').innerHTML = "DRAW MODE OFF";
-        } else {
-            drawmode = true;
-            canvas.style.cursor = "crosshair";
-            document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
-        }
-    });
+    $('#myCanvas').css('top', $('#vcontainer').css('top'));
+    $('#myCanvas').css('left', $('#vcontainer').css('left'));
+    $('#myCanvas').css('bottom', $('#vcontainer').css('bottom'));
+    $('#myCanvas').css('right', $('#vcontainer').css('right'));
+    $('#myCanvas').css('position', $('#vcontainer').css('position'));
 
-    $('#dltbutton').on('click', function (e) {
-        var a = 1
-    });
-
-    $('#myCanvas').on('click', function (e) {
-        if (drawmode == true) {
-            var newAnnotation;
-            const x = e.pageX - offsetX;
-            const y = e.pageY - offsetY;
-            document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
-            newAnnotation = jQuery('<div/>', {
-                class: 'annotation',
-            }).appendTo('#myCanvas');
-
-            canvas.style.cursor = "default";
-            drawmode = false;
-        }
-    });
+    // $('#drawbutton').on('click', function (e) {
+    //     if (drawmode == true) {
+    //         drawmode = false;
+    //         canvas.style.cursor = "default";
+    //         document.getElementById('debugtext').innerHTML = "DRAW MODE OFF";
+    //     } else {
+    //         drawmode = true;
+    //         canvas.style.cursor = "crosshair";
+    //         document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
+    //     }
+    // });
+    //
+    // $('#dltbutton').on('click', function (e) {
+    //     var a = 1
+    // });
+    //
+    // $('#myCanvas').on('click', function (e) {
+    //     if (drawmode == true) {
+    //         var newAnnotation;
+    //         const x = e.pageX;
+    //         const y = e.pageY;
+    //         document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
+    //         newAnnotation = jQuery('<div/>', {
+    //             class: 'annotation',
+    //         }).appendTo('#myCanvas');
+    //
+    //         canvas.style.cursor = "default";
+    //         drawmode = false;
+    //     }
+    // });
 
     $("#myCanvas").css("border", "3px solid red");
-    resize_canvas();
-    //$("#vplayer").on('load', resize_canvas)
+    // resize_canvas();
+    $("#vplayer").get(0).on("loadeddata", resize_canvas())
 })
