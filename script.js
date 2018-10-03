@@ -78,15 +78,13 @@ function rewind_video() {
 }
 
 function resize_canvas() {
-    var w = $("#vcontainer").width();
-    var h = $("#vcontainer").height();
-    var top = $("#vcontainer").css('top');
-    var left = $("#vcontainer").css('left');
     $("#myCanvas").css("position", "absolute");
-    $("#myCanvas").css("width", w);
-    $("#myCanvas").css("height", h);
-    $("#myCanvas").css("top", top);
-    $("#myCanvas").css("left", left);
+    $("#myCanvas").css("width", $("#vcontainer").width());
+    $("#myCanvas").css("height", $("#vcontainer").height());
+    $("#myCanvas").css("top", $("#vcontainer").css('top'));
+    $("#myCanvas").css("left", $("#vcontainer").css('left'));
+    $("#myCanvas").css("right", $("#vcontainer").css('right'));
+    $("#myCanvas").css("bottom", $("#vcontainer").css('bottom'));
 
     var slider = document.getElementById("myRange");
     var output = document.getElementById("demo");
