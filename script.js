@@ -78,16 +78,15 @@ function rewind_video() {
 }
 
 function resize_canvas() {
-    var element = $("#vplayer").get(0);
-    var w = element.offsetWidth;
-    var h = element.offsetHeight;
-    var top = element.style.top;
-    var left = element.style.left;
-    var cv = document.getElementById("myCanvas");
-    cv.width = w;
-    cv.height = h;
-    cv.top = top;
-    cv.left = left;
+    var w = $("#vcontainer").width();
+    var h = $("#vcontainer").height();
+    var top = $("#vcontainer").css('top');
+    var left = $("#vcontainer").css('left');
+    $("#myCanvas").css("position", "absolute");
+    $("#myCanvas").css("width", w);
+    $("#myCanvas").css("height", h);
+    $("#myCanvas").css("top", top);
+    $("#myCanvas").css("left", left);
 
     var slider = document.getElementById("myRange");
     var output = document.getElementById("demo");
@@ -117,8 +116,6 @@ $(document).ready(function() {
     let offsetX = 8;
     let offsetY = 128;
     let drawmode = false;
-
-    resize_canvas();
     // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
     // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
     // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
@@ -155,4 +152,8 @@ $(document).ready(function() {
             drawmode = false;
         }
     });
+
+    $("#myCanvas").css("border", "3px solid red");
+    resize_canvas();
+    //$("#vplayer").on('load', resize_canvas)
 })
