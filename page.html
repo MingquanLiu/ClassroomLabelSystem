@@ -17,12 +17,13 @@
     </h1>
 </div>
 <h2>Here is your video to annotate: </h2>
-<div class="container" id = "container">
+<div class="container" id = "container" onclick="add_div()">
     <div id="left" class="subcontainer">
         <video class="video" id="vplayer"  oncontextmenu="return false;"
                src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider()" onended="video_ended()">
         </video>
         <div class="canvas" id="myCanvas">
+
         </div>
         <button id="drawbutton">Add an annotation </button>
         <button id="dltbutton">Delete all annotations </button>
