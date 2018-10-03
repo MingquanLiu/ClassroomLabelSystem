@@ -17,17 +17,21 @@
     </h1>
 </div>
 
-<div class = "cv" id = "mcv">
-    <div id="vcontainer" class="vcontainer">
-        <video class="video" id="vplayer"  oncontextmenu="return false;"
-               src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4">
-        </video>
+<!--<div class = "cv" id = "mcv">-->
+    <!--<div id="vcontainer" class="vcontainer">-->
+        <!--<video class="video" id="vplayer"  oncontextmenu="return false;"-->
+               <!--src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4">-->
+        <!--</video>-->
+    <!--</div>-->
+    <!--<div id="myCanvas" class="canvas"></div>-->
+<!--</div>-->
+
+<div id="video_box">
+    <div id="myCanvas"></div>
+    <div>
+        <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" autoplay onplay="resize_canvas()"></video>
     </div>
-    <div id="myCanvas" class="canvas"></div>
 </div>
 
-
-
-</div>
 
 </body>

@@ -78,19 +78,24 @@ function rewind_video() {
 }
 
 function resize_canvas() {
-    $("#myCanvas").css("position", "relative");
-    $("#myCanvas").css("width", $("#vcontainer").width());
-    $("#myCanvas").css("height", $("#vcontainer").height());
-    $("#myCanvas").css("top", $("#vcontainer").css('top'));
-    $("#myCanvas").css("left", $("#vcontainer").css('left'));
-    $("#myCanvas").css("right", $("#vcontainer").css('right'));
-    $("#myCanvas").css("bottom", $("#vcontainer").css('bottom'));
+    // $("#myCanvas").css("position", "relative");
+    // $("#myCanvas").css("width", $("#vcontainer").width());
+    // $("#myCanvas").css("height", $("#vcontainer").height());
+    // $("#myCanvas").css("top", $("#vcontainer").css('top'));
+    // $("#myCanvas").css("left", $("#vcontainer").css('left'));
+    // $("#myCanvas").css("right", $("#vcontainer").css('right'));
+    // $("#myCanvas").css("bottom", $("#vcontainer").css('bottom'));
+    //
+    // var slider = document.getElementById("myRange");
+    // var output = document.getElementById("demo");
+    //
+    // output.innerHTML = parseFloat(0).toFixed(2) + " / " + $("#vplayer").get(0).duration.toFixed(2)
+    // slider.value = 0
 
-    var slider = document.getElementById("myRange");
-    var output = document.getElementById("demo");
+    $("#myCanvas").css("border", "3px solid red");
+    $('#myCanvas').css('height', $('#vplayer').css('height'));
+    $('#myCanvas').css('width', $('#vplayer').css('width'));
 
-    output.innerHTML = parseFloat(0).toFixed(2) + " / " + $("#vplayer").get(0).duration.toFixed(2)
-    slider.value = 0
 }
 
 function change_slider() {
@@ -113,18 +118,14 @@ function add_div() {
 
 $(document).ready(function() {
     let drawmode = false;
+    // resize_canvas()
 
     // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
     // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
     // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
 
-    $('#slider').on('input', show_slider_value);
-
-    $('#myCanvas').css('top', $('#vcontainer').css('top'));
-    $('#myCanvas').css('left', $('#vcontainer').css('left'));
-    $('#myCanvas').css('bottom', $('#vcontainer').css('bottom'));
-    $('#myCanvas').css('right', $('#vcontainer').css('right'));
-    $('#myCanvas').css('position', $('#vcontainer').css('position'));
+    // $('#slider').on('input', show_slider_value);
+    // $('#myCanvas').css('position', $('#vplayer').css('position'));
 
     // $('#drawbutton').on('click', function (e) {
     //     if (drawmode == true) {
@@ -156,8 +157,4 @@ $(document).ready(function() {
     //         drawmode = false;
     //     }
     // });
-
-    $("#myCanvas").css("border", "3px solid red");
-    // resize_canvas();
-    $("#vplayer").get(0).on("loadeddata", resize_canvas())
 })

@@ -1,3 +1,9 @@
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+
 .annotation {
     width: 30px;
     height: 30px;
@@ -62,8 +68,23 @@
     background-color:rgba(0,255,0,0.5);
 }
 
-video{
-    height: 100%;
-    width: 100%;
-    display: flex;
+/*video{*/
+    /*height: 100%;*/
+    /*width: 100%;*/
+    /*display: flex;*/
+    /*!*z-index:1000000;*!*/
+/*}*/
+#video_box{
+    float:left;
+    border: 3px solid;
+    background-color:rgba(0,255,0,0.5);
+}
+#myCanvas {
+    position:absolute;
+    float:left;
+    width:640px;
+    min-height:370px;
+    background-color:#000;
+    opacity: 1;
+    /*z-index:300000;*/
 }
