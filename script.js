@@ -105,6 +105,13 @@ function change_slider() {
     output.innerHTML = time.toFixed(2) + " / " + duration.toFixed(2)
 }
 
+function add_div() {
+    let parent = document.getElementById("myCanvas");
+    let div = document.createElement('div')
+    div.className = 'annotation';
+    parent.appendChild(div);
+}
+
 
 $(document).ready(function() {
     let offsetX = 8;
