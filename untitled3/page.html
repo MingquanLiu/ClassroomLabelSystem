@@ -1,84 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-<style>
-    .canvas {
-        position: absolute;
-        top: 128px;
-        left: 8px;
-        z-index: 10;
-    }
-    .container {
-        height: 100%;
-        width: 100%;
-        display: flex;
-    }
-    .subcontainer {
-        width: 50%;
-    }
-
-    .moodimg {
-        width: 128px;
-        height: 128px;
-    }
-    .slider {
-        -webkit-appearance: none;
-        width: 100%;
-        height: 15px;
-        border-radius: 5px;
-        background: #d3d3d3;
-        outline: none;
-        opacity: 0.7;
-        -webkit-transition: .2s;
-        transition: opacity .2s;
-    }
-
-    .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        background: #4CAF50;
-        cursor: pointer;
-    }
-
-    .slider::-moz-range-thumb {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        background: #4CAF50;
-        cursor: pointer;
-    }
-    .view{
-        width: 100%;
-        height: 15px;
-    }
-
-</style>
-
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to the classroom labeling system</title>
-    <div style="text-align:center" xmlns="">
-        <h1>
-            Welcome to the Classroom Video Labelling System!
-        </h1>
-    </div>
-    <h2>Here is your video to annotate: </h2>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+    <script src="script.js" type=text/javascript></script>
 </head>
 
 
-<body onload=resize_canvas()>
+<body>
+<title>Welcome to the classroom labeling system</title>
+<div style="text-align:center" xmlns="">
+    <h1>
+        Welcome to the Classroom Video Labelling System!
+    </h1>
+</div>
+<h2>Here is your video to annotate: </h2>
 <div class="container" id = "container">
     <div id="left" class="subcontainer">
         <video class="video" id="vplayer"  oncontextmenu="return false;"
                src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider()" onended="video_ended()">
         </video>
-        <canvas class="canvas" id="myCanvas">
-            Your browser does not support the HTML5 canvas tag.
-        </canvas>
+        <div class="canvas" id="myCanvas">
+        </div>
         <button id="drawbutton">Add an annotation </button>
-        <button id="dltbutton">Add an annotation </button>
+        <button id="dltbutton">Delete all annotations </button>
         <button id="playbutton" onclick="play_jquery()">
             Play
         </button>
@@ -89,7 +36,7 @@
             Rewind!
         </button>
         <div id="bottom" class="subcontainer">
-            <div class="slidecontainer" oninput="show_slider_value()">
+            <div id='slider' class="slidecontainer">
                 <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
             </div>
             <button id="lastFrame" onclick="change_frame(false)">
@@ -105,165 +52,5 @@
         </div>
     </div>
 </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
-
-<script>
-    offsetX = 8;
-    offsetY = 128;
-    drawmode = false;
-
-    // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
-    // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
-    // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
-    function video_ended() {
-        // What you want to do after the event
-        document.getElementById("playbutton").innerText = "Play"
-    }
-
-
-    function show_slider_value() {
-        document.getElementById("playbutton").innerText = "Play"
-        var slider = document.getElementById("myRange");
-        var output = document.getElementById("demo");
-        var mediaElement =  $("#vplayer").get(0);
-        var duration = mediaElement.duration;
-        var time = parseFloat(slider.value/100 * duration)
-        output.innerHTML = time.toFixed(2)+":"+duration.toFixed(2)
-        mediaElement.currentTime = time
-        mediaElement.pause()
-        $("#vplayer").load()
-
-    }
-
-    function play_jquery() {
-        // $('#playbutton').click(function () {
-            if (!$("#vplayer").get(0).paused) {
-                $("#vplayer").get(0).pause();
-                document.getElementById("playbutton").innerText = "Play "
-            } else {
-                $("#vplayer").get(0).play();
-                document.getElementById("playbutton").innerText = "Pause"
-            }
-            $("#vplayer").load()
-        // });
-    }
-
-    function change_frame(isNext){
-        var cTime = $("#vplayer").get(0).currentTime;
-        var duration = $("#vplayer").get(0).duration;
-        var changed_time;
-        if(isNext){
-            changed_time = cTime+5;
-        }else{
-            changed_time = cTime-5;
-        }
-
-        if(changed_time>duration){
-            changed_time = duration;
-        }
-        if(changed_time<0){
-            changed_time = 0;
-        }
-        $("#vplayer").get(0).currentTime = changed_time
-        $("#vplayer").get(0).pause();
-        document.getElementById("playbutton").innerText = "Play"
-        $("#vplayer").load()
-
-    }
-    function restart_video(){
-        // $('#restartbutton').click(function () {
-            $("#vplayer").get(0).currentTime = 0.0
-            $("#vplayer").get(0).play();
-            $("#vplayer").load()
-        // })
-    }
-    
-    function rewind_video() {
-        //Create a variable to manage video elements
-        var mediaElement =  $("#vplayer").get(0);
-
-        //Adjust playhead (currentTime) to 0 if elapsed time is less than 2 seconds else adjust it to the elapsed time minus 2 seconds
-        if(mediaElement.currentTime < 2) {
-            mediaElement.currentTime = 0;
-        } else {
-            mediaElement.currentTime = mediaElement.currentTime-2;
-        }
-        $("#vplayer").load()
-    }
-    function db_button() {
-        AWS.config.region = 'us-east-2';
-        AWS.config.credentials =
-            new AWS.CognitoIdentityCredentials({IdentityPoolId: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"});
-
-        var db = new AWS.DynamoDB();
-        $("#dbtxt").value = ""
-    }
-
-    function resize_canvas()
-    {
-        var element =  $("#vplayer").get(0);
-        var w = element.offsetWidth;
-        var h = element.offsetHeight;
-        var top = element.style.top;
-        var left = element.style.left;
-        var cv = document.getElementById("myCanvas");
-        cv.width = w;
-        cv.height =h;
-        cv.top = top;
-        cv.left = left;
-
-        var slider = document.getElementById("myRange");
-        var output = document.getElementById("demo");
-        slider.value = 0
-        output.innerHTML = parseFloat(0).toFixed(2)+":"+element.duration.toFixed(2)
-    }
-
-    function change_slider(){
-        var time = $("#vplayer").get(0).currentTime;
-        var duration = $("#vplayer").get(0).duration;
-        var slider = document.getElementById("myRange");
-        var output = document.getElementById("demo");
-        var percentage = parseFloat(time/duration).toFixed(2)*100
-        slider.value = percentage;
-        output.innerHTML = time.toFixed(2)+":"+duration.toFixed(2)
-    }
-
-    let canvas = $('#myCanvas').get(0)
-    let drawbtn = $('#drawbutton').get(0)
-
-    drawbtn.addEventListener('click', function(e) {
-        if(drawmode == true){
-            drawmode = false;
-            canvas.style.cursor = "default";
-            document.getElementById('debugtext').innerHTML = "DRAW MODE OFF";
-        } else {
-            drawmode = true;
-            canvas.style.cursor = "crosshair";
-            document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
-        }
-    });
-
-    canvas.addEventListener('click', function(e) {
-        if (drawmode == true) {
-            const x = e.pageX - offsetX;
-            const y = e.pageY - offsetY;
-            document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
-            var context = canvas.getContext('2d');
-            context.beginPath()
-            context.rect(x, y, 30, 30)
-            context.fillStyle = 'blue';
-            context.globalAlpha = 0.35
-            context.fill();
-            context.lineWidth = 2;
-            context.strokeStyle = 'black';
-            context.stroke();
-            canvas.style.cursor = "default"
-            drawmode = false;
-        }
-    });
-
-
-</script>
 </body>
 </html>
