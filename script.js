@@ -115,9 +115,69 @@ function add_div() {
     parent.appendChild(div);
 }
 
+function select_label(annotation) {
+    annotation.css('background-color', '#2ECC40');
+    annotation.css('opacity', 1.0)
+}
+
+function deselect_label(annotation) {
+    if (annotation != null) {
+        annotation.css('background-color', '#39CCCC');
+        annotation.css('opacity', 0.9)
+    }
+}
+
+
 
 $(document).ready(function() {
     let drawmode = false;
+    var selectedAnnotation = null;
+
+    $('#drawbutton').on('click', function (e) {
+        if (drawmode == true) {
+            drawmode = false;
+            $('#video_box').css('cursor', 'default');
+            document.getElementById('debugtext').innerHTML = "DRAW MODE OFF";
+        } else {
+            drawmode = true;
+            $('#video_box').css('cursor', 'crosshair');
+            document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
+        }
+    });
+
+    $('#video_box').on('click', function (e) {
+        if (drawmode == true) {
+            var newAnnotation;
+            const x = e.pageX;
+            const y = e.pageY;
+            document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
+            newAnnotation = jQuery('<div/>', {
+                class: 'annotation',
+            });
+            newAnnotation.css("top", y+'px');
+            newAnnotation.css("left", x+'px');
+            newAnnotation.appendTo('#video_box');
+            newAnnotation.on('click', function() {
+                if (newAnnotation.is(selectedAnnotation)){
+                    deselect_label(selectedAnnotation);
+                    selectedAnnotation = null;
+                }
+                deselect_label(selectedAnnotation);
+                selectedAnnotation = newAnnotation;
+                select_label(newAnnotation)
+            });
+            newAnnotation.on('keypress', function(e) {
+                if(e.which == 8 && selectedAnnotation.is(newAnnotation)) {
+                    newAnnotation.remove();
+                }
+            });
+
+
+            $('#video_box').css('cursor', "default");
+            drawmode = false;
+        }
+    });
+
     // resize_canvas()
 
     // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
@@ -127,34 +187,10 @@ $(document).ready(function() {
     // $('#slider').on('input', show_slider_value());
     // $('#myCanvas').css('position', $('#vplayer').css('position'));
 
-    // $('#drawbutton').on('click', function (e) {
-    //     if (drawmode == true) {
-    //         drawmode = false;
-    //         canvas.style.cursor = "default";
-    //         document.getElementById('debugtext').innerHTML = "DRAW MODE OFF";
-    //     } else {
-    //         drawmode = true;
-    //         canvas.style.cursor = "crosshair";
-    //         document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
-    //     }
-    // });
     //
     // $('#dltbutton').on('click', function (e) {
     //     var a = 1
     // });
     //
-    // $('#myCanvas').on('click', function (e) {
-    //     if (drawmode == true) {
-    //         var newAnnotation;
-    //         const x = e.pageX;
-    //         const y = e.pageY;
-    //         document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
-    //         newAnnotation = jQuery('<div/>', {
-    //             class: 'annotation',
-    //         }).appendTo('#myCanvas');
-    //
-    //         canvas.style.cursor = "default";
-    //         drawmode = false;
-    //     }
-    // });
+
 })

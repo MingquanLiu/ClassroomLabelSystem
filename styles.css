@@ -8,7 +8,9 @@ html, body {
     width: 30px;
     height: 30px;
     border: 3px solid;
-    background-color:rgba(0,255,0,0.5);
+    position: absolute;
+    background-color:#39CCCC;
+    opacity:0.9;
 }
 .canvas {
     height: 100%;
@@ -78,17 +80,21 @@ html, body {
     float:left;
     border: 3px solid;
     background-color:rgba(0,255,0,0.5);
+    z-index:0;
 }
-#myCanvas {
+.myCanvas {
     position:absolute;
     float:left;
     width:640px;
     min-height:370px;
     background-color:#000;
     opacity: 0.5;
-    /*z-index:300000;*/
+    z-index:1;
 }
 
 .vcontrols{
     display: table-cell;
+    margin: auto;
+    border: 3px solid green;
+    padding: 10px;
 }
