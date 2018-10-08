@@ -85,6 +85,6 @@ html, body {
     width:640px;
     min-height:370px;
     background-color:#000;
-    opacity: 1;
+    opacity: 0.1;
     /*z-index:300000;*/
 }
