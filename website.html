@@ -29,7 +29,7 @@
 <div id="video_box">
     <div id="myCanvas"></div>
     <div>
-        <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" autoplay onplay="resize_canvas()"></video>
+        <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" onloadeddata="resize_canvas()"></video>
     </div>
 </div>
 <div id="bottom" class="vcontrols">
@@ -44,9 +44,6 @@
     <button id="rewindbutton" onclick="rewind_video()">
         Rewind!
     </button>
-    <div id='slider' class="slidecontainer">
-        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
-    </div>
     <button id="lastFrame" onclick="change_frame(false)">
         Last Frame!
     </button>
@@ -57,6 +54,11 @@
     <view class = "view" id="demo" > 18</view>
     <br>
     <view id="debugtext">DEBUG</view>
+</div>
+<div>
+    <div id='slider' class="slidecontainer">
+        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+    </div>
 </div>
 
 </body>
