@@ -126,7 +126,7 @@ function select_label(annotation) {
 
 function deselect_label(annotation) {
     if (annotation != null) {
-        annotation.css('background-color', '#39CCCC');
+        annotation.css('background-color', '#DDDDDD');
         annotation.css('opacity', 0.9)
     }
 }
@@ -137,7 +137,7 @@ $(document).ready(function() {
     let drawmode = false;
     var selectedAnnotation = null;
 
-    $('#drawbutton').on('click', function (e) {
+    $('#drawbutton').on('click', function () {
         if (drawmode == true) {
             drawmode = false;
             $('#video_box').css('cursor', 'default');
@@ -148,6 +148,13 @@ $(document).ready(function() {
             document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
         }
     });
+
+    $('#dltbutton').on('click', function() {
+        if (selectedAnnotation != null) {
+            selectedAnnotation.remove();
+        }
+    });
+
 
     $('#video_box').on('click', function (e) {
         if (drawmode == true) {
@@ -165,10 +172,11 @@ $(document).ready(function() {
                 if (newAnnotation.is(selectedAnnotation)){
                     deselect_label(selectedAnnotation);
                     selectedAnnotation = null;
+                } else {
+                    deselect_label(selectedAnnotation);
+                    selectedAnnotation = newAnnotation;
+                    select_label(newAnnotation);
                 }
-                deselect_label(selectedAnnotation);
-                selectedAnnotation = newAnnotation;
-                select_label(newAnnotation)
             });
             newAnnotation.on('keypress', function(e) {
                 if(e.which == 8 && selectedAnnotation.is(newAnnotation)) {
