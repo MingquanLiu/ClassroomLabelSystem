@@ -29,7 +29,7 @@
 <div id="video_box">
     <!--<div id="myCanvas"></div>-->
     <div>
-        <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider()" onended="video_ended()"></video>
+        <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider()" onloadeddata="resize_slider()" onended="video_ended()"></video>
     </div>
 </div>
 <div id="bottom" class="vcontrols">

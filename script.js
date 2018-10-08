@@ -98,6 +98,10 @@ function resize_canvas() {
 
 }
 
+function resize_slider() {
+    $('#slider').css('width', $('#video_box').css('width'));
+}
+
 function change_slider() {
     var time = $("#vplayer").get(0).currentTime;
     var duration = $("#vplayer").get(0).duration;
