@@ -136,15 +136,17 @@ function deselect_label(annotation) {
 $(document).ready(function() {
     let drawmode = false;
     var selectedAnnotation = null;
+    let mouse_flag = false;
+    let drawingAnnotation = null;
+    let drawingAnnotationX = 0;
+    let drawingAnnotationY = 0;
 
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
             drawmode = false;
-            $('#video_box').css('cursor', 'default');
             document.getElementById('debugtext').innerHTML = "DRAW MODE OFF";
         } else {
             drawmode = true;
-            $('#video_box').css('cursor', 'crosshair');
             document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
         }
     });
@@ -156,39 +158,74 @@ $(document).ready(function() {
     });
 
 
-    $('#video_box').on('click', function (e) {
+    $('#video_box').on('mousedown', function (e) {
         if (drawmode == true) {
-            var newAnnotation;
+            mouse_flag = true;
             const x = e.pageX;
             const y = e.pageY;
             document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
-            newAnnotation = jQuery('<div/>', {
+            drawingAnnotation = jQuery('<div/>', {
                 class: 'annotation',
             });
-            newAnnotation.css("top", y+'px');
-            newAnnotation.css("left", x+'px');
-            newAnnotation.appendTo('#video_box');
-            newAnnotation.on('click', function() {
-                if (newAnnotation.is(selectedAnnotation)){
-                    deselect_label(selectedAnnotation);
-                    selectedAnnotation = null;
-                } else {
-                    deselect_label(selectedAnnotation);
-                    selectedAnnotation = newAnnotation;
-                    select_label(newAnnotation);
-                }
-            });
-            newAnnotation.on('keypress', function(e) {
-                if(e.which == 8 && selectedAnnotation.is(newAnnotation)) {
-                    newAnnotation.remove();
-                }
-            });
-
-
-            $('#video_box').css('cursor', "default");
-            drawmode = false;
+            // drawingAnnotation.css("top", y+'px');
+            // drawingAnnotation.css("left", x+'px');
+            drawingAnnotationX = x;
+            drawingAnnotationY = y;
+            $('#video_box').css('cursor', 'crosshair');
+            drawingAnnotation.appendTo('#video_box');
         }
     });
+
+    $('#video_box').on('mousemove', function (e) {
+        if(drawmode) {
+            if (mouse_flag) {
+                const x = e.pageX;
+                const y = e.pageY;
+                let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
+                let right = (drawingAnnotationX < x)?x:drawingAnnotationX;
+                let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
+                let bottom = (drawingAnnotationY >y)?drawingAnnotationY:y;
+                drawingAnnotation.css("bottom", bottom+'px');
+                drawingAnnotation.css("right", right+'px');
+                drawingAnnotation.css("top", top+'px');
+                drawingAnnotation.css("left", left+'px');
+                document.getElementById('debugtext').innerHTML = "ON Mouse Moving";
+            }
+        }
+    });
+
+    $('#video_box').on('mouseup', function (e) {
+        if(drawmode){
+            if(mouse_flag){
+                document.getElementById('debugtext').innerHTML = "ON Mouse Up";
+                const x = e.pageX;
+                const y = e.pageY;
+                let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
+                let right = (drawingAnnotationX < x)?x:drawingAnnotationX;
+                let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
+                let bottom = (drawingAnnotationY >y)?drawingAnnotationY:y;
+                drawingAnnotation.css("bottom", bottom+'px');
+                drawingAnnotation.css("right", right+'px');
+                drawingAnnotation.css("top", top+'px');
+                drawingAnnotation.css("left", left+'px');
+                drawingAnnotation.on('click', function() {
+                    if (drawingAnnotation.is(selectedAnnotation)){
+                        deselect_label(selectedAnnotation);
+                        selectedAnnotation = null;
+                    } else {
+                        deselect_label(selectedAnnotation);
+                        selectedAnnotation = drawingAnnotation;
+                        select_label(drawingAnnotation);
+                    }
+                });
+                $('#video_box').css('cursor', "default");
+                drawmode = false;
+                mouse_flag = false;
+                drawingAnnotation = null
+            }
+        }
+    });
+
 
     // resize_canvas()
 
