@@ -29,7 +29,7 @@
 <div id="video_box">
     <div id="myCanvas"></div>
     <div>
-        <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" onloadeddata="resize_canvas()"></video>
+        <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider()" onloadeddata="resize_canvas()" onended="video_ended()"></video>
     </div>
 </div>
 <div id="bottom" class="vcontrols">
@@ -52,12 +52,11 @@
     </button>
 
     <view class = "view" id="demo" > 18</view>
-    <br>
     <view id="debugtext">DEBUG</view>
 </div>
 <div>
     <div id='slider' class="slidecontainer">
-        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+        <input type="range" min="1" max="100" value="50" class="slider" id="myRange" oninput="show_slider_value()">
     </div>
 </div>
 

@@ -7,7 +7,7 @@ function video_ended() {
 
 
 function show_slider_value() {
-    document.getElementById("playbutton").innerText = "Play "
+    // document.getElementById("playbutton").innerText = "Play"
     var slider = document.getElementById("myRange");
     var output = document.getElementById("demo");
     var mediaElement = $("#vplayer").get(0);
@@ -124,7 +124,7 @@ $(document).ready(function() {
     // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
     // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
 
-    // $('#slider').on('input', show_slider_value);
+    // $('#slider').on('input', show_slider_value());
     // $('#myCanvas').css('position', $('#vplayer').css('position'));
 
     // $('#drawbutton').on('click', function (e) {
