@@ -145,9 +145,11 @@ $(document).ready(function() {
         if (drawmode == true) {
             drawmode = false;
             document.getElementById('debugtext').innerHTML = "DRAW MODE OFF";
+            $('#video_box').css('cursor', 'default');
         } else {
             drawmode = true;
             document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
+            $('#video_box').css('cursor', 'crosshair');
         }
     });
 
@@ -182,7 +184,6 @@ $(document).ready(function() {
                 drawingAnnotation = newAnnotation;
                 drawingAnnotationX = x;
                 drawingAnnotationY = y;
-                $('#video_box').css('cursor', 'crosshair');
                 drawingAnnotation.appendTo('#video_box');
             }
         }
