@@ -135,7 +135,6 @@ $(document).ready(function() {
     let drawingAnnotationY = 0;
     let pageX = 11;
     let pageY = 82;
-    let s = "";
 
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
