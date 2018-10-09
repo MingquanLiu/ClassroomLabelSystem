@@ -112,13 +112,6 @@ function change_slider() {
     output.innerHTML = time.toFixed(2) + " / " + duration.toFixed(2)
 }
 
-function add_div() {
-    let parent = document.getElementById("myCanvas");
-    let div = document.createElement('div')
-    div.className = 'annotation';
-    parent.appendChild(div);
-}
-
 function select_label(annotation) {
     annotation.css('background-color', '#2ECC40');
     annotation.css('opacity', 1.0)
@@ -160,18 +153,28 @@ $(document).ready(function() {
         }
     });
 
-
     $('#video_box').on('mousedown', function (e) {
         if (drawmode == true) {
             mouse_flag = true;
             const x = e.pageX;
             const y = e.pageY;
             document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
-            drawingAnnotation = jQuery('<div/>', {
+            let newAnnotation = jQuery('<div/>', {
                 class: 'annotation',
             });
             // drawingAnnotation.css("top", y+'px');
             // drawingAnnotation.css("left", x+'px');
+            newAnnotation.on('click', function() {
+                if (newAnnotation.is(selectedAnnotation)){
+                    deselect_label(selectedAnnotation);
+                    selectedAnnotation = null;
+                } else {
+                    deselect_label(selectedAnnotation);
+                    selectedAnnotation = newAnnotation;
+                    select_label(newAnnotation);
+                }
+            });
+            drawingAnnotation = newAnnotation;
             drawingAnnotationX = x;
             drawingAnnotationY = y;
             $('#video_box').css('cursor', 'crosshair');
@@ -232,16 +235,6 @@ $(document).ready(function() {
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
                 drawingAnnotation.css("height", height+'px');
-                drawingAnnotation.on('click', function() {
-                    if (drawingAnnotation.is(selectedAnnotation)){
-                        deselect_label(selectedAnnotation);
-                        selectedAnnotation = null;
-                    } else {
-                        deselect_label(selectedAnnotation);
-                        selectedAnnotation = drawingAnnotation;
-                        select_label(drawingAnnotation);
-                    }
-                });
                 $('#video_box').css('cursor', "default");
                 drawmode = false;
                 mouse_flag = false;
@@ -250,20 +243,8 @@ $(document).ready(function() {
         }
     });
 
-
-    // resize_canvas()
-
     // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
     // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
     // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
 
-    // $('#slider').on('input', show_slider_value());
-    // $('#myCanvas').css('position', $('#vplayer').css('position'));
-
-    //
-    // $('#dltbutton').on('click', function (e) {
-    //     var a = 1
-    // });
-    //
-
-})
+});
