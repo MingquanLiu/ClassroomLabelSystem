@@ -129,15 +129,17 @@ function deselect_label(annotation) {
 $(document).ready(function() {
     let drawmode = false;
     var selectedAnnotation = null;
+    let mouse_flag = false;
+    let drawingAnnotation = null;
+    let drawingAnnotationX = 0;
+    let drawingAnnotationY = 0;
 
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
             drawmode = false;
-            $('#video_box').css('cursor', 'default');
             document.getElementById('debugtext').innerHTML = "DRAW MODE OFF";
         } else {
             drawmode = true;
-            $('#video_box').css('cursor', 'crosshair');
             document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
         }
     });
@@ -148,18 +150,17 @@ $(document).ready(function() {
         }
     });
 
-    $('#video_box').on('click', function (e) {
+    $('#video_box').on('mousedown', function (e) {
         if (drawmode == true) {
-            var newAnnotation;
+            mouse_flag = true;
             const x = e.pageX;
             const y = e.pageY;
             document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
-            newAnnotation = jQuery('<div/>', {
+            let newAnnotation = jQuery('<div/>', {
                 class: 'annotation',
             });
-            newAnnotation.css("top", y+'px');
-            newAnnotation.css("left", x+'px');
-            newAnnotation.appendTo('#video_box');
+            // drawingAnnotation.css("top", y+'px');
+            // drawingAnnotation.css("left", x+'px');
             newAnnotation.on('click', function() {
                 if (newAnnotation.is(selectedAnnotation)){
                     deselect_label(selectedAnnotation);
@@ -170,10 +171,57 @@ $(document).ready(function() {
                     select_label(newAnnotation);
                 }
             });
+            drawingAnnotation = newAnnotation;
+            drawingAnnotationX = x;
+            drawingAnnotationY = y;
+            $('#video_box').css('cursor', 'crosshair');
+            drawingAnnotation.appendTo('#video_box');
+        }
+    });
 
+    $('#video_box').on('mousemove', function (e) {
+        if(drawmode) {
+            if (mouse_flag) {
+                const x = e.pageX;
+                const y = e.pageY;
+                let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
+                let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
+                let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
+                let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
+                // let vHeight = $('#vplayer').css('height')
+                // let vWidth = $('#vplayer').css('width')
+                // let vTop = $('#vplayer').css('top')
+                // let vLeft = $('#vplayer').css('left')
+                // height = (top+height)>(vTop+vHeight)?(vTop+vHeight-top):height;
+                // width = (left+width) > (vLeft+vWidth)?(vLeft+vWidth-left):width;
+                drawingAnnotation.css("top", top+'px');
+                drawingAnnotation.css("left", left+'px');
+                drawingAnnotation.css("width", width+'px');
+                drawingAnnotation.css("height", height+'px');
+                document.getElementById('debugtext').innerHTML = " current X Y "+x+" "+y + " vplayer top left width height" + vTop+" "+vLeft+" "+vWidth+" "+vHeight;
+            }
+        }
+    });
 
-            $('#video_box').css('cursor', "default");
-            drawmode = false;
+    $('#video_box').on('mouseup', function (e) {
+        if(drawmode){
+            if(mouse_flag){
+                document.getElementById('debugtext').innerHTML = "ON Mouse Up";
+                const x = e.pageX;
+                const y = e.pageY;
+                let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
+                let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
+                let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
+                let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
+                drawingAnnotation.css("top", top+'px');
+                drawingAnnotation.css("left", left+'px');
+                drawingAnnotation.css("width", width+'px');
+                drawingAnnotation.css("height", height+'px');
+                $('#video_box').css('cursor', "default");
+                drawmode = false;
+                mouse_flag = false;
+                drawingAnnotation = null
+            }
         }
     });
 
