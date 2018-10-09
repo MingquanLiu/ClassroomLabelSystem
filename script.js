@@ -112,13 +112,6 @@ function change_slider() {
     output.innerHTML = time.toFixed(2) + " / " + duration.toFixed(2)
 }
 
-function add_div() {
-    let parent = document.getElementById("myCanvas");
-    let div = document.createElement('div')
-    div.className = 'annotation';
-    parent.appendChild(div);
-}
-
 function select_label(annotation) {
     annotation.css('background-color', '#2ECC40');
     annotation.css('opacity', 1.0)
@@ -155,7 +148,6 @@ $(document).ready(function() {
         }
     });
 
-
     $('#video_box').on('click', function (e) {
         if (drawmode == true) {
             var newAnnotation;
@@ -178,11 +170,6 @@ $(document).ready(function() {
                     select_label(newAnnotation);
                 }
             });
-            newAnnotation.on('keypress', function(e) {
-                if(e.which == 8 && selectedAnnotation.is(newAnnotation)) {
-                    newAnnotation.remove();
-                }
-            });
 
 
             $('#video_box').css('cursor', "default");
@@ -190,19 +177,8 @@ $(document).ready(function() {
         }
     });
 
-    // resize_canvas()
-
     // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
     // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
     // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
 
-    // $('#slider').on('input', show_slider_value());
-    // $('#myCanvas').css('position', $('#vplayer').css('position'));
-
-    //
-    // $('#dltbutton').on('click', function (e) {
-    //     var a = 1
-    // });
-    //
-
-})
+});
