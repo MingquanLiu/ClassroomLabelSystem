@@ -140,6 +140,9 @@ $(document).ready(function() {
     let drawingAnnotation = null;
     let drawingAnnotationX = 0;
     let drawingAnnotationY = 0;
+    let pageX = 11;
+    let pageY = 82;
+    let s = "";
 
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
@@ -181,21 +184,26 @@ $(document).ready(function() {
             if (mouse_flag) {
                 const x = e.pageX;
                 const y = e.pageY;
+
                 let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
                 let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
                 let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
                 let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
-                // let vHeight = $('#vplayer').css('height')
-                // let vWidth = $('#vplayer').css('width')
-                // let vTop = $('#vplayer').css('top')
-                // let vLeft = $('#vplayer').css('left')
-                // height = (top+height)>(vTop+vHeight)?(vTop+vHeight-top):height;
-                // width = (left+width) > (vLeft+vWidth)?(vLeft+vWidth-left):width;
+                let vHeight = parseInt($('#vplayer').css('height'),10)
+                let vWidth = parseInt($('#vplayer').css('width'),10)
+                if( (pageY+vHeight)<(top+height)){
+                    height = pageY+vHeight- top;
+                }
+                if((pageX+vWidth) <(left+width)){
+                    width = pageX+ vWidth - left;
+                }
+
                 drawingAnnotation.css("top", top+'px');
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
                 drawingAnnotation.css("height", height+'px');
-                document.getElementById('debugtext').innerHTML = " current X Y "+x+" "+y + " vplayer top left width height" + vTop+" "+vLeft+" "+vWidth+" "+vHeight;
+                document.getElementById('debugtext').innerHTML = " top left"+ top+" "+left+" Width Height "+ width+" "+height+
+                    " video width height "+vWidth+" "+vHeight;
             }
         }
     });
@@ -206,10 +214,20 @@ $(document).ready(function() {
                 document.getElementById('debugtext').innerHTML = "ON Mouse Up";
                 const x = e.pageX;
                 const y = e.pageY;
+
                 let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
                 let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
                 let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
                 let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
+                let vHeight = parseInt($('#vplayer').css('height'),10)
+                let vWidth = parseInt($('#vplayer').css('width'),10)
+                if( (pageY+vHeight)<(top+height)){
+                    height = pageY+vHeight- top;
+                }
+                if((pageX+vWidth) <(left+width)){
+                    width = pageX+ vWidth - left;
+                }
+
                 drawingAnnotation.css("top", top+'px');
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
