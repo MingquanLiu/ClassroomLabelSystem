@@ -113,14 +113,19 @@ function change_slider() {
 }
 
 function select_label(annotation) {
-    annotation.css('background-color', '#2ECC40');
-    annotation.css('opacity', 1.0)
+    annotation.removeClass("annotation");
+    annotation.addClass("annotation-selected");
+
+    // annotation.css('background-color', '#2ECC40');
+    // annotation.css('opacity', 1.0)
 }
 
 function deselect_label(annotation) {
     if (annotation != null) {
-        annotation.css('background-color', '#DDDDDD');
-        annotation.css('opacity', 0.9)
+        annotation.removeClass("annotation-selected");
+        annotation.addClass("annotation");
+
+        // annotation.css('background-color', '#DDDDDD');
     }
 }
 

@@ -5,10 +5,16 @@ html, body {
 
 
 .annotation {
-    border: 3px solid;
+    border: 2px solid;
     position: absolute;
-    background-color:#DDDDDD;
-    opacity:0.9;
+    background-color: rgba(0, 128, 0, 0.1)
+}
+
+.annotation-selected {
+    border: 3px solid;
+    outline: 3px solid rgba(255,0,0,1.0);
+    position: absolute;
+    background-color: rgba(255,99,71, 0.25)
 }
 .canvas {
     height: 100%;
@@ -93,6 +99,5 @@ html, body {
 .vcontrols{
     display: table-cell;
     margin: auto;
-    border: 3px solid green;
     padding: 10px;
 }
