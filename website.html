@@ -28,13 +28,14 @@
 
 <div id="video_box">
     <!--<div id="myCanvas"></div>-->
-    <div>
+    <div id="vplayer_container">
         <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider()" onloadeddata="resize_slider()" onended="video_ended()"></video>
     </div>
 </div>
 <div id="bottom" class="vcontrols">
     <button id="drawbutton">Add an annotation </button>
     <button id="dltbutton">Delete selected annotation </button>
+    <button id="dltallbutton">Delete all annotations </button>
     <button id="playbutton" onclick="play_jquery()">
         Play
     </button>

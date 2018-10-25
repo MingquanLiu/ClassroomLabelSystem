@@ -1,8 +1,158 @@
 /* @AUTHOR David Swenarton & Mingquan Liu */
 
+var currentFrame = 0
+var frameDuration = 2
+var annotationsByFrame = {};
+
+function video_ended() {
+    // What you want to do after the event
+    document.getElementById("playbutton").innerText = "Play"
+}
+
+//Clears all annotations off of UI for current frame, leaves data stored for frame
+function clearAllAnnotations(frame) {
+	var allChildren = $("#video_box").children();
+	for (var i = 0; i < allChildren.length; i++) {
+		child = allChildren[i]
+		vpc = document.getElementById("vplayer_container");
+		if (vpc != child) {
+			allChildren[i].remove();
+		}
+	}
+}
+
+//Deletes all annotation data for given frame, then calls clearAllAnnotations to clear the UI
+function deleteAllAnnotations(frame) {
+	annotationsByFrame[frame] = [];
+	clearAllAnnotations(frame);
+}
+
+function displayStoredAnnotations(frame) {
+
+}
+
+function updateAnnotationsOnFrameChange(time, duration) {
+    totalFrames = Math.floor(duration/frameDuration);
+    currentFrame = Math.floor((time/duration)*totalFrames)
+    document.getElementById('debugtext').innerHTML = "Frame Number: " + currentFrame;
+    //deleteAllAnnotations(currentFrame);
+}
+
+function show_slider_value() {
+    // document.getElementById("playbutton").innerText = "Play"
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+    var mediaElement = $("#vplayer").get(0);
+    var duration = mediaElement.duration;
+    var time = parseFloat(slider.value / 100 * duration)
+    output.innerHTML = time.toFixed(2) + " / " + duration.toFixed(2)
+    mediaElement.currentTime = time
+    mediaElement.pause()
+}
+
+function play_jquery() {
+    // $('#playbutton').click(function () {
+    if (!$("#vplayer").get(0).paused) {
+        $("#vplayer").get(0).pause();
+        document.getElementById("playbutton").innerText = "Play "
+    } else {
+        $("#vplayer").get(0).play();
+        document.getElementById("playbutton").innerText = "Pause"
+    }
+    // });
+}
+
+function change_frame(isNext) {
+    var cTime = $("#vplayer").get(0).currentTime;
+    var duration = $("#vplayer").get(0).duration;
+    var changed_time;
+    if (isNext) {
+        changed_time = cTime + frameDuration;
+    } else {
+        changed_time = cTime - frameDuration;
+    }
+
+    if (changed_time > duration) {
+        changed_time = duration;
+    }
+    if (changed_time < 0) {
+        changed_time = 0;
+    }
+    $("#vplayer").get(0).currentTime = changed_time
+    $("#vplayer").get(0).pause();
+    document.getElementById("playbutton").innerText = "Play"
+}
+
+function restart_video() {
+    // $('#restartbutton').click(function () {
+    $("#vplayer").get(0).currentTime = 0.0
+    $("#vplayer").get(0).play();
+    // })
+}
+
+function rewind_video() {
+    //Create a variable to manage video elements
+    var mediaElement = $("#vplayer").get(0);
+
+    //Adjust playhead (currentTime) to 0 if elapsed time is less than 2 seconds else adjust it to the elapsed time minus 2 seconds
+    if (mediaElement.currentTime < 2) {
+        mediaElement.currentTime = 0;
+    } else {
+        mediaElement.currentTime = mediaElement.currentTime - 2;
+    }
+}
+
+function resize_canvas() {
+    $("#myCanvas").css("border", "3px solid red");
+    $('#myCanvas').css('height', $('#vplayer').css('height'));
+    $('#myCanvas').css('width', $('#vplayer').css('width'));
+}
+
 function resize_slider() {
     $('#slider').css('width', $('#video_box').css('width'));
 }
+
+function change_slider() {
+    var time = $("#vplayer").get(0).currentTime;
+    var duration = $("#vplayer").get(0).duration;
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+    var percentage = parseFloat(time / duration).toFixed(2) * 100
+    slider.value = percentage;
+    output.innerHTML = time.toFixed(2) + " / " + duration.toFixed(2)
+	updateAnnotationsOnFrameChange(time, duration);
+}
+
+function select_label(annotation) {
+    annotation.removeClass("annotation");
+    annotation.addClass("annotation-selected");
+}
+
+function deselect_label(annotation) {
+    if (annotation != null) {
+        annotation.removeClass("annotation-selected");
+        annotation.addClass("annotation");
+    }
+}
+
+class Annotation {
+
+    constructor(user, frame, html) {
+        this.user = user;
+        this.frame = frame;
+        this.html = html;
+    }
+}
+
+function addAnnotation(annotation, frame) {
+	if (frame in annotationsByFrame) {
+		annotationsByFrame[frame].push(annotation);
+	} else {
+		annotationsByFrame[frame] = [];
+		annotationsByFrame[frame].push(annotation);
+	}
+}
+
 
 $(document).ready(function() {
     let drawmode = false;
@@ -11,154 +161,9 @@ $(document).ready(function() {
     let drawingAnnotation = null;
     let drawingAnnotationX = 0;
     let drawingAnnotationY = 0;
+    let newAnnotationObj = null;
     let pageX = 11;
     let pageY = 82;
-
-    var currentFrame = 0
-    var frameDuration = 2
-    var annotationsByFrame = {};
-
-
-    function video_ended() {
-        // What you want to do after the event
-        document.getElementById("playbutton").innerText = "Play"
-    }
-
-
-    function show_slider_value() {
-        // document.getElementById("playbutton").innerText = "Play"
-        var slider = document.getElementById("myRange");
-        var output = document.getElementById("demo");
-        var mediaElement = $("#vplayer").get(0);
-        var duration = mediaElement.duration;
-        var time = parseFloat(slider.value / 100 * duration)
-        output.innerHTML = time.toFixed(2) + " / " + duration.toFixed(2)
-        mediaElement.currentTime = time
-        mediaElement.pause()
-        $("#vplayer").load()
-
-    }
-
-    function play_jquery() {
-        // $('#playbutton').click(function () {
-        if (!$("#vplayer").get(0).paused) {
-            $("#vplayer").get(0).pause();
-            document.getElementById("playbutton").innerText = "Play "
-        } else {
-            $("#vplayer").get(0).play();
-            document.getElementById("playbutton").innerText = "Pause"
-        }
-        $("#vplayer").load()
-        // });
-    }
-
-    function change_frame(isNext) {
-        var cTime = $("#vplayer").get(0).currentTime;
-        var duration = $("#vplayer").get(0).duration;
-        var changed_time;
-        if (isNext) {
-            changed_time = cTime + 5;
-        } else {
-            changed_time = cTime - 5;
-        }
-
-        if (changed_time > duration) {
-            changed_time = duration;
-        }
-        if (changed_time < 0) {
-            changed_time = 0;
-        }
-        $("#vplayer").get(0).currentTime = changed_time
-        $("#vplayer").get(0).pause();
-        document.getElementById("playbutton").innerText = "Play"
-        $("#vplayer").load()
-
-    }
-
-    function restart_video() {
-        // $('#restartbutton').click(function () {
-        $("#vplayer").get(0).currentTime = 0.0
-        $("#vplayer").get(0).play();
-        $("#vplayer").load()
-        // })
-    }
-
-    function rewind_video() {
-        //Create a variable to manage video elements
-        var mediaElement = $("#vplayer").get(0);
-
-        //Adjust playhead (currentTime) to 0 if elapsed time is less than 2 seconds else adjust it to the elapsed time minus 2 seconds
-        if (mediaElement.currentTime < 2) {
-            mediaElement.currentTime = 0;
-        } else {
-            mediaElement.currentTime = mediaElement.currentTime - 2;
-        }
-        $("#vplayer").load()
-    }
-
-    function resize_canvas() {
-        // $("#myCanvas").css("position", "relative");
-        // $("#myCanvas").css("width", $("#vcontainer").width());
-        // $("#myCanvas").css("height", $("#vcontainer").height());
-        // $("#myCanvas").css("top", $("#vcontainer").css('top'));
-        // $("#myCanvas").css("left", $("#vcontainer").css('left'));
-        // $("#myCanvas").css("right", $("#vcontainer").css('right'));
-        // $("#myCanvas").css("bottom", $("#vcontainer").css('bottom'));
-        //
-        // var slider = document.getElementById("myRange");
-        // var output = document.getElementById("demo");
-        //
-        // output.innerHTML = parseFloat(0).toFixed(2) + " / " + $("#vplayer").get(0).duration.toFixed(2)
-        // slider.value = 0
-
-        $("#myCanvas").css("border", "3px solid red");
-        $('#myCanvas').css('height', $('#vplayer').css('height'));
-        $('#myCanvas').css('width', $('#vplayer').css('width'));
-
-    }
-
-    function change_slider() {
-        var time = $("#vplayer").get(0).currentTime;
-        var duration = $("#vplayer").get(0).duration;
-        var slider = document.getElementById("myRange");
-        var output = document.getElementById("demo");
-        var percentage = parseFloat(time / duration).toFixed(2) * 100
-        slider.value = percentage;
-        output.innerHTML = time.toFixed(2) + " / " + duration.toFixed(2)
-    }
-
-    function select_label(annotation) {
-        annotation.removeClass("annotation");
-        annotation.addClass("annotation-selected");
-
-        // annotation.css('background-color', '#2ECC40');
-        // annotation.css('opacity', 1.0)
-    }
-
-    function deselect_label(annotation) {
-        if (annotation != null) {
-            annotation.removeClass("annotation-selected");
-            annotation.addClass("annotation");
-
-            // annotation.css('background-color', '#DDDDDD');
-        }
-    }
-
-    class Annotation {
-
-        constructor(user, frame, html) {
-            this.user = user;
-            this.frame = frame;
-            this.html = html;
-        }
-    }
-
-    //Attaching on action functions
-
-    $('#vplayer').on('timeupdate', change_slider);
-
-
-
 
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
@@ -174,8 +179,27 @@ $(document).ready(function() {
 
     $('#dltbutton').on('click', function() {
         if (selectedAnnotation != null) {
-            selectedAnnotation.remove();
+        	var allChildren = $("#video_box").children();
+        	for (var i = 0; i < allChildren.length; i++) {
+				var tableChild = allChildren[i];
+				if (tableChild === selectedAnnotation[0]) {	
+				    selectedAnnotation.remove();
+            		selectedAnnotation = null
+				}
+			}
         }
+    });
+
+    $('#dltallbutton').on('click', function() {
+    	annotationsByFrame[currentFrame] = [];
+		var allChildren = $("#video_box").children();
+		for (var i = 0; i < allChildren.length; i++) {
+			child = allChildren[i]
+			vpc = document.getElementById("vplayer_container");
+			if (vpc != child) {
+				allChildren[i].remove();
+			}
+		}
     });
 
     $('#video_box').on('mousedown', function (e) {
@@ -198,10 +222,11 @@ $(document).ready(function() {
                         select_label(annotationHtml);
                     }
                 });
-                newAnnotation = new Annotation("test", 1, annotationHtml)
                 drawingAnnotation = annotationHtml;
                 drawingAnnotationX = x;
                 drawingAnnotationY = y;
+                newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation);
+                addAnnotation(newAnnotation, currentFrame);
                 drawingAnnotation.appendTo('#video_box');
             }
         }
