@@ -32,8 +32,7 @@ function displayStoredAnnotations(frame) {
 }
 
 function updateAnnotationsOnFrameChange(time, duration) {
-    totalFrames = Math.floor(duration/frameDuration);
-    currentFrame = Math.floor((time/duration)*totalFrames)
+    currentFrame = Math.floor(time/frameDuration)+1;
     document.getElementById('debugtext').innerHTML = "Frame Number: " + currentFrame;
     //deleteAllAnnotations(currentFrame);
 }
