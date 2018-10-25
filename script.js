@@ -1,7 +1,7 @@
 /* @AUTHOR David Swenarton & Mingquan Liu */
 
 var currentFrame = 0
-var frameDuration = 2
+var frameDuration = 0.5
 var annotationsByFrame = {};
 
 function video_ended() {
