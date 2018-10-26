@@ -161,11 +161,48 @@ $(document).ready(function() {
     let drawingAnnotationX = 0;
     let drawingAnnotationY = 0;
     let newAnnotationObj = null;
-    let pageX = 11;
-    let pageY = 82;
+    let pageX = 10;
+    let pageY = 80;
     let relativeDiffX = 0;
     let relativeDiffY = 0;
     let clickMode = false;
+
+    $('#page_body').on('mouseup', function (e) {
+        if(drawmode){
+            if(mouse_flag){
+                document.getElementById('debugtext').innerHTML = "ON Mouse Up";
+                const x = e.pageX;
+                const y = e.pageY;
+
+                let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
+                let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
+                let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
+                let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
+                let vHeight = parseInt($('#vplayer').css('height'),10)
+                let vWidth = parseInt($('#vplayer').css('width'),10)
+                if( (pageY+vHeight)<(top+height)){
+                    height = pageY+vHeight- top;
+                }
+                if((pageX+vWidth) <(left+width)){
+                    width = pageX+ vWidth - left;
+                }
+
+                drawingAnnotation.css("top", top+'px');
+                drawingAnnotation.css("left", left+'px');
+                drawingAnnotation.css("width", width+'px');
+                drawingAnnotation.css("height", height+'px');
+                select_label(drawingAnnotation)
+                selectedAnnotation = drawingAnnotation
+                $('#video_box').css('cursor', "default");
+                drawmode = false;
+                mouse_flag = false;
+                drawingAnnotation = null
+
+            }
+        }
+        document.getElementById('debugtext').innerHTML = "Clicked"
+    })
+
 
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
@@ -289,9 +326,9 @@ $(document).ready(function() {
                 const y = e.pageY;
 
                 let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
-                let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
-                let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
-                let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
+                let top = (drawingAnnotationY >y)?y:drawingAnnotationY;
+                let width = Math.abs(x-drawingAnnotationX);
+                let height = Math.abs(y-drawingAnnotationY);
                 let vHeight = parseInt($('#vplayer').css('height'),10)
                 let vWidth = parseInt($('#vplayer').css('width'),10)
                 if( (pageY+vHeight)<(top+height)){
@@ -335,6 +372,8 @@ $(document).ready(function() {
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
                 drawingAnnotation.css("height", height+'px');
+                select_label(drawingAnnotation)
+                selectedAnnotation = drawingAnnotation
                 $('#video_box').css('cursor', "default");
                 drawmode = false;
                 mouse_flag = false;
