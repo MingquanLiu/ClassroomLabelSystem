@@ -1,7 +1,8 @@
 /* @AUTHOR David Swenarton & Mingquan Liu */
 
-var currentFrame = 0
+var currentFrame = 1
 var frameDuration = 0.5
+var selectedAnnotation = null;
 var annotationsByFrame = {};
 
 function video_ended() {
@@ -19,6 +20,7 @@ function clearAllAnnotations(frame) {
 			allChildren[i].remove();
 		}
 	}
+	selectedAnnotation = null;
 }
 
 //Deletes all annotation data for given frame, then calls clearAllAnnotations to clear the UI
@@ -27,14 +29,21 @@ function deleteAllAnnotations(frame) {
 	clearAllAnnotations(frame);
 }
 
-function displayStoredAnnotations(frame) {
-
+function displayStoredAnnotations() {
+	debugger;
+	if (currentFrame in annotationsByFrame) {
+		let stored = annotationsByFrame[currentFrame];
+		for (var i = 0; i < stored.length; i++) {
+			annotationHtml = stored[i].html;
+			annotationHtml.appendTo('#video_box');
+		}
+	}
 }
 
 function updateAnnotationsOnFrameChange(time, duration) {
     currentFrame = Math.floor(time/frameDuration)+1;
     document.getElementById('debugtext').innerHTML = "Frame Number: " + currentFrame;
-    //deleteAllAnnotations(currentFrame);
+    clearAllAnnotations(currentFrame);
 }
 
 function show_slider_value() {
@@ -155,7 +164,6 @@ function addAnnotation(annotation, frame) {
 
 $(document).ready(function() {
     let drawmode = false;
-    var selectedAnnotation = null;
     let mouse_flag = false;
     let drawingAnnotation = null;
     let drawingAnnotationX = 0;
@@ -190,7 +198,6 @@ $(document).ready(function() {
     });
 
     $('#dltallbutton').on('click', function() {
-    	annotationsByFrame[currentFrame] = [];
 		var allChildren = $("#video_box").children();
 		for (var i = 0; i < allChildren.length; i++) {
 			child = allChildren[i]
@@ -200,6 +207,8 @@ $(document).ready(function() {
 			}
 		}
     });
+
+    $('#displaybtn').on('click', displayStoredAnnotations);
 
     $('#video_box').on('mousedown', function (e) {
         if (drawmode == true) {
