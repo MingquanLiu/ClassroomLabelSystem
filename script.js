@@ -200,6 +200,8 @@ $(document).ready(function() {
 
             }
         }
+        if(clickMode == true)
+        clickMode = false;
         document.getElementById('debugtext').innerHTML = "Clicked"
     })
 
@@ -284,10 +286,21 @@ $(document).ready(function() {
                     if(annotationHtml.is(selectedAnnotation) && clickMode ==true) {
                         const x = e.pageX;
                         const y = e.pageY;
+
+                        let vHeight = parseInt($('#vplayer').css('height'),10)
+                        let vWidth = parseInt($('#vplayer').css('width'),10)
+
+                        let width = parseInt(annotationHtml.css('width'),10)
+                        let height = parseInt(annotationHtml.css('height'),10)
                         let top = (y - relativeDiffY)
                         let left = (x - relativeDiffX)
-                        annotationHtml.css("top", top + 'px')
-                        annotationHtml.css("left", left + 'px')
+
+                        if(left>pageX && (left+width)<(pageX+vWidth)){
+                            annotationHtml.css("left", left + 'px')
+                        }
+                        if(top>pageY && (top+height)<(pageY+ vHeight)){
+                            annotationHtml.css("top", top + 'px')
+                        }
                         document.getElementById('debugtext').innerHTML = "Current TOP LEFT" + top + " " + left
                     }
                 })
@@ -296,10 +309,20 @@ $(document).ready(function() {
                     if(annotationHtml.is(selectedAnnotation) && clickMode ==true) {
                         const x = e.pageX;
                         const y = e.pageY;
+                        let vHeight = parseInt($('#vplayer').css('height'),10)
+                        let vWidth = parseInt($('#vplayer').css('width'),10)
+
+                        let width = parseInt(annotationHtml.css('width'),10)
+                        let height = parseInt(annotationHtml.css('height'),10)
                         let top = (y - relativeDiffY)
                         let left = (x - relativeDiffX)
-                        annotationHtml.css("top", top + 'px')
-                        annotationHtml.css("left", left + 'px')
+
+                        if(left>pageX && (left+width)<(pageX+vWidth)){
+                            annotationHtml.css("left", left + 'px')
+                        }
+                        if(top>pageY && (top+height)<(pageY+ vHeight)){
+                            annotationHtml.css("top", top + 'px')
+                        }
                         document.getElementById('debugtext').innerHTML = "Current TOP LEFT" + top + " " + left
                         relativeDiffX = 0;
                         relativeDiffY = 0;
