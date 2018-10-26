@@ -35,6 +35,10 @@ function displayStoredAnnotations() {
 		let stored = annotationsByFrame[currentFrame];
 		for (var i = 0; i < stored.length; i++) {
 			annotationHtml = stored[i].html;
+			if(annotationHtml.attr('class') == "annotation-selected"){
+				annotationHtml.removeClass("annotation");
+    			annotationHtml.addClass("annotation-selected");
+			}
 			annotationHtml.appendTo('#video_box');
 		}
 	}
@@ -44,6 +48,7 @@ function updateAnnotationsOnFrameChange(time, duration) {
     currentFrame = Math.floor(time/frameDuration)+1;
     document.getElementById('debugtext').innerHTML = "Frame Number: " + currentFrame;
     clearAllAnnotations(currentFrame);
+    displayStoredAnnotations();
 }
 
 function show_slider_value() {
