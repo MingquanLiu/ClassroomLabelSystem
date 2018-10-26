@@ -169,8 +169,50 @@ $(document).ready(function() {
     let drawingAnnotationX = 0;
     let drawingAnnotationY = 0;
     let newAnnotationObj = null;
-    let pageX = 11;
-    let pageY = 82;
+    let pageX = 10;
+    let pageY = 80;
+    let relativeDiffX = 0;
+    let relativeDiffY = 0;
+    let clickMode = false;
+
+    $('#page_body').on('mouseup', function (e) {
+        if(drawmode){
+            if(mouse_flag){
+                document.getElementById('debugtext').innerHTML = "ON Mouse Up";
+                const x = e.pageX;
+                const y = e.pageY;
+
+                let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
+                let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
+                let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
+                let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
+                let vHeight = parseInt($('#vplayer').css('height'),10)
+                let vWidth = parseInt($('#vplayer').css('width'),10)
+                if( (pageY+vHeight)<(top+height)){
+                    height = pageY+vHeight- top;
+                }
+                if((pageX+vWidth) <(left+width)){
+                    width = pageX+ vWidth - left;
+                }
+
+                drawingAnnotation.css("top", top+'px');
+                drawingAnnotation.css("left", left+'px');
+                drawingAnnotation.css("width", width+'px');
+                drawingAnnotation.css("height", height+'px');
+                select_label(drawingAnnotation)
+                selectedAnnotation = drawingAnnotation
+                $('#video_box').css('cursor', "default");
+                drawmode = false;
+                mouse_flag = false;
+                drawingAnnotation = null
+
+            }
+        }
+        if(clickMode == true)
+        clickMode = false;
+        document.getElementById('debugtext').innerHTML = "Clicked"
+    })
+
 
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
@@ -230,6 +272,75 @@ $(document).ready(function() {
                         select_label(annotationHtml);
                     }
                 });
+
+                annotationHtml.on('mousedown', function (e) {
+                    if(annotationHtml.is(selectedAnnotation)){
+                        let top =  parseInt(annotationHtml.css('top'),10)
+                        let left = parseInt(annotationHtml.css('left'),10)
+                        const x = e.pageX;
+                        const y = e.pageY;
+                        relativeDiffX = x-left;
+                        relativeDiffY = y-top;
+                        clickMode = true;
+                        document.getElementById('debugtext').innerHTML = relativeDiffY+" "+relativeDiffX
+
+                    }else{
+                        relativeDiffX = 0;
+                        relativeDiffY = 0;
+                        clickMode = false;
+                    }
+                })
+
+                annotationHtml.on('mousemove', function (e) {
+                    if(annotationHtml.is(selectedAnnotation) && clickMode ==true) {
+                        const x = e.pageX;
+                        const y = e.pageY;
+
+                        let vHeight = parseInt($('#vplayer').css('height'),10)
+                        let vWidth = parseInt($('#vplayer').css('width'),10)
+
+                        let width = parseInt(annotationHtml.css('width'),10)
+                        let height = parseInt(annotationHtml.css('height'),10)
+                        let top = (y - relativeDiffY)
+                        let left = (x - relativeDiffX)
+
+                        if(left>pageX && (left+width)<(pageX+vWidth)){
+                            annotationHtml.css("left", left + 'px')
+                        }
+                        if(top>pageY && (top+height)<(pageY+ vHeight)){
+                            annotationHtml.css("top", top + 'px')
+                        }
+                        document.getElementById('debugtext').innerHTML = "Current TOP LEFT" + top + " " + left
+                    }
+                })
+
+                annotationHtml.on('mouseup', function (e) {
+                    if(annotationHtml.is(selectedAnnotation) && clickMode ==true) {
+                        const x = e.pageX;
+                        const y = e.pageY;
+                        let vHeight = parseInt($('#vplayer').css('height'),10)
+                        let vWidth = parseInt($('#vplayer').css('width'),10)
+
+                        let width = parseInt(annotationHtml.css('width'),10)
+                        let height = parseInt(annotationHtml.css('height'),10)
+                        let top = (y - relativeDiffY)
+                        let left = (x - relativeDiffX)
+
+                        if(left>pageX && (left+width)<(pageX+vWidth)){
+                            annotationHtml.css("left", left + 'px')
+                        }
+                        if(top>pageY && (top+height)<(pageY+ vHeight)){
+                            annotationHtml.css("top", top + 'px')
+                        }
+                        document.getElementById('debugtext').innerHTML = "Current TOP LEFT" + top + " " + left
+                        relativeDiffX = 0;
+                        relativeDiffY = 0;
+                        clickMode = false;
+                        deselect_label(annotationHtml);
+                        selectedAnnotation = null;
+                    }
+                })
+
                 drawingAnnotation = annotationHtml;
                 drawingAnnotationX = x;
                 drawingAnnotationY = y;
@@ -247,9 +358,9 @@ $(document).ready(function() {
                 const y = e.pageY;
 
                 let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
-                let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
-                let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
-                let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
+                let top = (drawingAnnotationY >y)?y:drawingAnnotationY;
+                let width = Math.abs(x-drawingAnnotationX);
+                let height = Math.abs(y-drawingAnnotationY);
                 let vHeight = parseInt($('#vplayer').css('height'),10)
                 let vWidth = parseInt($('#vplayer').css('width'),10)
                 if( (pageY+vHeight)<(top+height)){
@@ -293,6 +404,8 @@ $(document).ready(function() {
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
                 drawingAnnotation.css("height", height+'px');
+                select_label(drawingAnnotation)
+                selectedAnnotation = drawingAnnotation
                 $('#video_box').css('cursor', "default");
                 drawmode = false;
                 mouse_flag = false;
