@@ -163,6 +163,9 @@ $(document).ready(function() {
     let newAnnotationObj = null;
     let pageX = 11;
     let pageY = 82;
+    let relativeDiffX = 0;
+    let relativeDiffY = 0;
+    let clickMode = false;
 
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
@@ -221,6 +224,54 @@ $(document).ready(function() {
                         select_label(annotationHtml);
                     }
                 });
+
+                annotationHtml.on('mousedown', function (e) {
+                    if(annotationHtml.is(selectedAnnotation)){
+                        let top =  parseInt(annotationHtml.css('top'),10)
+                        let left = parseInt(annotationHtml.css('left'),10)
+                        const x = e.pageX;
+                        const y = e.pageY;
+                        relativeDiffX = x-left;
+                        relativeDiffY = y-top;
+                        clickMode = true;
+                        document.getElementById('debugtext').innerHTML = relativeDiffY+" "+relativeDiffX
+
+                    }else{
+                        relativeDiffX = 0;
+                        relativeDiffY = 0;
+                        clickMode = false;
+                    }
+                })
+
+                annotationHtml.on('mousemove', function (e) {
+                    if(annotationHtml.is(selectedAnnotation) && clickMode ==true) {
+                        const x = e.pageX;
+                        const y = e.pageY;
+                        let top = (y - relativeDiffY)
+                        let left = (x - relativeDiffX)
+                        annotationHtml.css("top", top + 'px')
+                        annotationHtml.css("left", left + 'px')
+                        document.getElementById('debugtext').innerHTML = "Current TOP LEFT" + top + " " + left
+                    }
+                })
+
+                annotationHtml.on('mouseup', function (e) {
+                    if(annotationHtml.is(selectedAnnotation) && clickMode ==true) {
+                        const x = e.pageX;
+                        const y = e.pageY;
+                        let top = (y - relativeDiffY)
+                        let left = (x - relativeDiffX)
+                        annotationHtml.css("top", top + 'px')
+                        annotationHtml.css("left", left + 'px')
+                        document.getElementById('debugtext').innerHTML = "Current TOP LEFT" + top + " " + left
+                        relativeDiffX = 0;
+                        relativeDiffY = 0;
+                        clickMode = false;
+                        deselect_label(annotationHtml);
+                        selectedAnnotation = null;
+                    }
+                })
+
                 drawingAnnotation = annotationHtml;
                 drawingAnnotationX = x;
                 drawingAnnotationY = y;
