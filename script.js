@@ -30,7 +30,6 @@ function deleteAllAnnotations(frame) {
 }
 
 function displayStoredAnnotations() {
-	debugger;
 	if (currentFrame in annotationsByFrame) {
 		let stored = annotationsByFrame[currentFrame];
 		for (var i = 0; i < stored.length; i++) {
@@ -215,7 +214,7 @@ $(document).ready(function() {
         }
         if(clickMode == true)
         clickMode = false;
-        document.getElementById('debugtext').innerHTML = "Clicked"
+        //document.getElementById('debugtext').innerHTML = "Clicked"
     })
 
 
@@ -256,6 +255,14 @@ $(document).ready(function() {
     });
 
     $('#displaybtn').on('click', displayStoredAnnotations);
+
+    $('#item1').on('click', function() {
+        if ($('#item1').attr('class')== "emotionlistitem") {
+            $('#item1').attr('class', "emotionlistitem-selected");
+        } else if ($('#item1').attr('class') == "emotionlistitem-selected") {
+            $('#item1').attr('class', "emotionlistitem" );
+        }
+    });
 
     $('#video_box').on('mousedown', function (e) {
         if (drawmode == true) {
@@ -409,8 +416,8 @@ $(document).ready(function() {
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
                 drawingAnnotation.css("height", height+'px');
-                select_label(drawingAnnotation)
-                selectedAnnotation = drawingAnnotation
+                // select_label(drawingAnnotation)
+                // selectedAnnotation = drawingAnnotation
                 $('#video_box').css('cursor', "default");
                 drawmode = false;
                 mouse_flag = false;

@@ -17,19 +17,23 @@
     </h1>
 </div>
 
-<!--<div class = "cv" id = "mcv">-->
-    <!--<div id="vcontainer" class="vcontainer">-->
-        <!--<video class="video" id="vplayer"  oncontextmenu="return false;"-->
-               <!--src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4">-->
-        <!--</video>-->
-    <!--</div>-->
-    <!--<div id="myCanvas" class="canvas"></div>-->
-<!--</div>-->
-
-<div id="video_box">
+<div id="center_box">
+    <div id="video_box">
     <!--<div id="myCanvas"></div>-->
-    <div id="vplayer_container">
-        <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider()" onloadeddata="resize_slider()" onended="video_ended()"></video>
+        <div id="vplayer_container">
+            <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider()"  onloadeddata="resize_slider()" onended="video_ended()"></video>
+        </div>
+    </div>
+    <div class="spacediv"></div>
+    <ul style="list-style-type:none" class="emotionlist">
+        <li id='item1' class="emotionlistitem">Coffee</li>
+        <li id='item2' class="emotionlistitem">Tea</li>
+        <li id='item3' class="emotionlistitem">Milk</li>
+    </ul>
+</div>
+<div>
+    <div id='slider' class="slidecontainer">
+        <input type="range" min="0" max="100" value="0" class="slider" id="myRange" oninput="show_slider_value()">
     </div>
 </div>
 <div id="bottom" class="vcontrols">
@@ -55,11 +59,6 @@
 
     <view class = "view" id="demo" > 18</view>
     <view id="debugtext">DEBUG</view>
-</div>
-<div>
-    <div id='slider' class="slidecontainer">
-        <input type="range" min="0" max="100" value="0" class="slider" id="myRange" oninput="show_slider_value()">
-    </div>
 </div>
 
 </body>
