@@ -3,6 +3,7 @@
 var currentFrame = 1
 var frameDuration = 0.5
 var selectedAnnotation = null;
+var selectedAnnotationLabels = {};
 var annotationsByFrame = {};
 
 function video_ended() {
@@ -17,6 +18,11 @@ function clearAllAnnotations(frame) {
 		child = allChildren[i]
 		vpc = document.getElementById("vplayer_container");
 		if (vpc != child) {
+            if (selectedAnnotation != null) {
+                if (child === selectedAnnotation[0]) {
+                    deselect_label(selectedAnnotation);
+                }
+            }
 			allChildren[i].remove();
 		}
 	}
@@ -135,9 +141,78 @@ function change_slider() {
 	updateAnnotationsOnFrameChange(time, duration);
 }
 
+function getAnnotationObjFromHtml(annotation) {
+    let stored = annotationsByFrame[currentFrame];
+    for (var i = 0; i < stored.length; i++) {
+        let annotationHtml = stored[i].html;
+        if (annotation[0] === annotationHtml[0]) {
+            return stored[i];
+        }
+    }
+    return null;
+}
+
+function displayEmotionsForAnnotation(annotation) {
+    let stored = annotationsByFrame[currentFrame];
+    for (var i = 0; i < stored.length; i++) {
+        let annotationHtml = stored[i].html;
+        if (annotation[0] === annotationHtml[0]) {
+            let emotions = stored[i].emotions;
+            for (let emotion in emotions) {
+                let isSelected = emotions[emotion]
+                const entry = $('<li>'+emotion+'</li>');
+                if (isSelected) {
+                    entry.addClass("emotionlistitem-selected");
+                } else {
+                    entry.addClass("emotionlistitem");
+                }
+
+                entry.on('click', function () {
+                    let emotions_array = emotions;
+                    let emotion_value = new String(emotion);
+                    if (entry.attr('class') == "emotionlistitem-selected") {
+                        emotions_array[emotion_value] = false;
+                        entry.removeClass("emotionlistitem-selected");
+                        entry.addClass("emotionlistitem");
+                    } else {
+                        emotions_array[emotion_value] = true;
+                        entry.removeClass("emotionlistitem");
+                        entry.addClass("emotionlistitem-selected");
+                    }
+                });
+
+
+                // entry.onclick = function () {
+                //     if (entry.classList.contains("emotionlistitem")) {
+                //         emotions[emotion] = true;
+                //         entry.classList.remove("emotionlistitem");
+                //         entry.classList.add("emotionlistitem-selected");
+                //     } else if (entry.classList.contains("emotionlistitem-selected")) {
+                //         emotions[emotion] = false;
+                //         entry.classList.remove("emotionlistitem-selected");
+                //         entry.classList.add("emotionlistitem");
+                //     }
+                // };
+                $("#emotionlist").append(entry);
+            }
+        }
+    }
+    let emolist = $("#emotionlist");
+}
+
+function emptyEmotionsList() {
+    var list = $('#emotionlist');
+    var allChildren = $('#emotionlist').children()
+    for (var i = 0; i < allChildren.length; i++) {
+        allChildren[i].remove();
+    }
+}
+
 function select_label(annotation) {
     annotation.removeClass("annotation");
     annotation.addClass("annotation-selected");
+    selectedAnnotation = annotation
+    displayEmotionsForAnnotation(selectedAnnotation);
 }
 
 function deselect_label(annotation) {
@@ -145,14 +220,64 @@ function deselect_label(annotation) {
         annotation.removeClass("annotation-selected");
         annotation.addClass("annotation");
     }
+    selectedAnnotation = null
+    emptyEmotionsList();
+}
+
+function deleteSingleAnnotation(annotation) {
+    var annotationObj = getAnnotationObjFromHtml(annotation);
+    let indexToDelete = -1
+    let allAnnotations = annotationsByFrame[currentFrame];
+    for (let i = 0; i < allAnnotations.length; i++) {
+        let atIndex = allAnnotations[i];
+        if (annotation == atIndex.html) {
+            indexToDelete = i
+        }
+    }
+    if (indexToDelete >= 0) {
+        annotationsByFrame[currentFrame].splice(indexToDelete, 1);
+    }
+}
+
+function is_in_annotation(annotation, x, y){
+    let top = parseInt(annotation.css('top'),10)
+    let left = parseInt(annotation.css('left'),10)
+    let width = parseInt(annotation.css('width'),10)
+    let height = parseInt(annotation.css('height'),10)
+    console.log(top+" "+left+" "+width+" "+height)
+    console.log(x+" "+y)
+    if(x<left || x>left+width){
+        return false
+    }
+    if(y<top || y>top+height){
+        return false
+    }
+    return true
+}
+
+function select_a_annotation(x,y){
+    if (currentFrame in annotationsByFrame) {
+        let stored = annotationsByFrame[currentFrame];
+        for (var i = 0; i < stored.length; i++) {
+            annotationHtml = stored[i].html;
+            if (is_in_annotation(annotationHtml, x, y))
+                return annotationHtml
+        }
+    }
+    return null
 }
 
 class Annotation {
 
-    constructor(user, frame, html) {
+    constructor(user, frame, html, emotions) {
         this.user = user;
         this.frame = frame;
         this.html = html;
+        if (emotions == null) {
+            this.emotions = {"Happy":false, "Sad":false, "Frustrated":false, "Engaged":false, "Asleep":false};
+        } else {
+            this.emotions = emotions;
+        }
     }
 }
 
@@ -203,20 +328,47 @@ $(document).ready(function() {
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
                 drawingAnnotation.css("height", height+'px');
+                deselect_label(selectedAnnotation)
                 select_label(drawingAnnotation)
                 selectedAnnotation = drawingAnnotation
                 $('#video_box').css('cursor', "default");
                 drawmode = false;
                 mouse_flag = false;
                 drawingAnnotation = null
-
             }
         }
         if(clickMode == true)
         clickMode = false;
         //document.getElementById('debugtext').innerHTML = "Clicked"
     })
+    // $('#page_body').on('mousemove', function (e) {
+    //     if(drawmode) {
+    //         if (mouse_flag) {
+    //             const x = e.pageX;
+    //             const y = e.pageY;
 
+    //             let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
+    //             let top = (drawingAnnotationY >y)?y:drawingAnnotationY;
+    //             left = (left<pageX)?pageX:left
+    //             top = (top<pageY)?pageY:top
+    //             let width = Math.abs(x-drawingAnnotationX);
+    //             let height = Math.abs(y-drawingAnnotationY);
+    //             let vHeight = parseInt($('#vplayer').css('height'),10)
+    //             let vWidth = parseInt($('#vplayer').css('width'),10)
+    //             if( (pageY+vHeight)<(top+height)){
+    //                 height = pageY+vHeight- top;
+    //             }
+    //             if((pageX+vWidth) <(left+width)){
+    //                 width = pageX+ vWidth - left;
+    //             }
+
+    //             drawingAnnotation.css("top", top+'px');
+    //             drawingAnnotation.css("left", left+'px');
+    //             drawingAnnotation.css("width", width+'px');
+    //             drawingAnnotation.css("height", height+'px');
+    //         }
+    //     }
+    // });
 
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
@@ -232,6 +384,7 @@ $(document).ready(function() {
 
     $('#dltbutton').on('click', function() {
         if (selectedAnnotation != null) {
+            deleteSingleAnnotation(selectedAnnotation);
         	var allChildren = $("#video_box").children();
         	for (var i = 0; i < allChildren.length; i++) {
 				var tableChild = allChildren[i];
@@ -241,9 +394,11 @@ $(document).ready(function() {
 				}
 			}
         }
+        emptyEmotionsList();
     });
 
     $('#dltallbutton').on('click', function() {
+        annotationsByFrame[currentFrame] = [];
 		var allChildren = $("#video_box").children();
 		for (var i = 0; i < allChildren.length; i++) {
 			child = allChildren[i]
@@ -252,6 +407,7 @@ $(document).ready(function() {
 				allChildren[i].remove();
 			}
 		}
+        emptyEmotionsList();
     });
 
     $('#displaybtn').on('click', displayStoredAnnotations);
@@ -274,96 +430,41 @@ $(document).ready(function() {
                 let annotationHtml = jQuery('<div/>', {
                     class: 'annotation',
                 });
-                annotationHtml.on('click', function() {
-                    if (annotationHtml.is(selectedAnnotation)){
-                        deselect_label(selectedAnnotation);
-                        selectedAnnotation = null;
-                    } else {
-                        deselect_label(selectedAnnotation);
-                        selectedAnnotation = annotationHtml;
-                        select_label(annotationHtml);
-                    }
-                });
-
-                annotationHtml.on('mousedown', function (e) {
-                    if(annotationHtml.is(selectedAnnotation)){
-                        let top =  parseInt(annotationHtml.css('top'),10)
-                        let left = parseInt(annotationHtml.css('left'),10)
-                        const x = e.pageX;
-                        const y = e.pageY;
-                        relativeDiffX = x-left;
-                        relativeDiffY = y-top;
-                        clickMode = true;
-                        document.getElementById('debugtext').innerHTML = relativeDiffY+" "+relativeDiffX
-
-                    }else{
-                        relativeDiffX = 0;
-                        relativeDiffY = 0;
-                        clickMode = false;
-                    }
-                })
-
-                annotationHtml.on('mousemove', function (e) {
-                    if(annotationHtml.is(selectedAnnotation) && clickMode ==true) {
-                        const x = e.pageX;
-                        const y = e.pageY;
-
-                        let vHeight = parseInt($('#vplayer').css('height'),10)
-                        let vWidth = parseInt($('#vplayer').css('width'),10)
-
-                        let width = parseInt(annotationHtml.css('width'),10)
-                        let height = parseInt(annotationHtml.css('height'),10)
-                        let top = (y - relativeDiffY)
-                        let left = (x - relativeDiffX)
-
-                        if(left>pageX && (left+width)<(pageX+vWidth)){
-                            annotationHtml.css("left", left + 'px')
-                        }
-                        if(top>pageY && (top+height)<(pageY+ vHeight)){
-                            annotationHtml.css("top", top + 'px')
-                        }
-                        document.getElementById('debugtext').innerHTML = "Current TOP LEFT" + top + " " + left
-                    }
-                })
-
-                annotationHtml.on('mouseup', function (e) {
-                    if(annotationHtml.is(selectedAnnotation) && clickMode ==true) {
-                        const x = e.pageX;
-                        const y = e.pageY;
-                        let vHeight = parseInt($('#vplayer').css('height'),10)
-                        let vWidth = parseInt($('#vplayer').css('width'),10)
-
-                        let width = parseInt(annotationHtml.css('width'),10)
-                        let height = parseInt(annotationHtml.css('height'),10)
-                        let top = (y - relativeDiffY)
-                        let left = (x - relativeDiffX)
-
-                        if(left>pageX && (left+width)<(pageX+vWidth)){
-                            annotationHtml.css("left", left + 'px')
-                        }
-                        if(top>pageY && (top+height)<(pageY+ vHeight)){
-                            annotationHtml.css("top", top + 'px')
-                        }
-                        document.getElementById('debugtext').innerHTML = "Current TOP LEFT" + top + " " + left
-                        relativeDiffX = 0;
-                        relativeDiffY = 0;
-                        clickMode = false;
-                        deselect_label(annotationHtml);
-                        selectedAnnotation = null;
-                    }
-                })
-
                 drawingAnnotation = annotationHtml;
                 drawingAnnotationX = x;
                 drawingAnnotationY = y;
-                newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation);
+                newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation, null);
                 addAnnotation(newAnnotation, currentFrame);
                 drawingAnnotation.appendTo('#video_box');
+            }
+        }
+        else{
+            const x = e.pageX;
+            const y = e.pageY;
+            // First it needs to select a annotation
+            deselect_label(selectedAnnotation);
+            selectedAnnotation = select_a_annotation(x,y)
+            if(selectedAnnotation == null){
+                console.log("IS NULL")
+                relativeDiffX = 0;
+                relativeDiffY = 0;
+                clickMode = false;
+            }
+            else {
+                select_label(selectedAnnotation)
+                let top =  parseInt(selectedAnnotation.css('top'),10)
+                let left = parseInt(selectedAnnotation.css('left'),10)
+                const x = e.pageX;
+                const y = e.pageY;
+                relativeDiffX = x-left;
+                relativeDiffY = y-top;
+                clickMode = true;
             }
         }
     });
 
     $('#video_box').on('mousemove', function (e) {
+
         if(drawmode) {
             if (mouse_flag) {
                 const x = e.pageX;
@@ -386,8 +487,26 @@ $(document).ready(function() {
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
                 drawingAnnotation.css("height", height+'px');
-                document.getElementById('debugtext').innerHTML = " top left"+ top+" "+left+" Width Height "+ width+" "+height+
-                    " video width height "+vWidth+" "+vHeight;
+            }
+        }else{
+            if(clickMode){
+                const x = e.pageX;
+                const y = e.pageY;
+
+                let vHeight = parseInt($('#vplayer').css('height'),10)
+                let vWidth = parseInt($('#vplayer').css('width'),10)
+
+                let width = parseInt(annotationHtml.css('width'),10)
+                let height = parseInt(annotationHtml.css('height'),10)
+                let top = (y - relativeDiffY)
+                let left = (x - relativeDiffX)
+
+                if(left>pageX && (left+width)<(pageX+vWidth)){
+                    annotationHtml.css("left", left + 'px')
+                }
+                if(top>pageY && (top+height)<(pageY+ vHeight)){
+                    annotationHtml.css("top", top + 'px')
+                }
             }
         }
     });
@@ -416,12 +535,37 @@ $(document).ready(function() {
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
                 drawingAnnotation.css("height", height+'px');
-                // select_label(drawingAnnotation)
-                // selectedAnnotation = drawingAnnotation
+
+                deselect_label(selectedAnnotation)
+                select_label(drawingAnnotation)
                 $('#video_box').css('cursor', "default");
                 drawmode = false;
                 mouse_flag = false;
                 drawingAnnotation = null
+            }
+        }else{
+            if(clickMode){
+                const x = e.pageX;
+                const y = e.pageY;
+                let vHeight = parseInt($('#vplayer').css('height'),10)
+                let vWidth = parseInt($('#vplayer').css('width'),10)
+
+                let width = parseInt(annotationHtml.css('width'),10)
+                let height = parseInt(annotationHtml.css('height'),10)
+                let top = (y - relativeDiffY)
+                let left = (x - relativeDiffX)
+
+                if(left>pageX && (left+width)<(pageX+vWidth)){
+                    annotationHtml.css("left", left + 'px')
+                }
+                if(top>pageY && (top+height)<(pageY+ vHeight)){
+                    annotationHtml.css("top", top + 'px')
+                }
+                relativeDiffX = 0;
+                relativeDiffY = 0;
+                clickMode = false;
+            }else{
+                deselect_label(selectedAnnotation)
             }
         }
     });
