@@ -197,11 +197,13 @@ function displayEmotionsForAnnotation(annotation) {
             }
         }
     }
-    let emolist = $("#emotionlist");
+    $('#emotionlist').removeClass("emotionlistempty");
+    $('#emotionlist').addClass("emotionlist");
 }
 
 function emptyEmotionsList() {
-    var list = $('#emotionlist');
+    $('#emotionlist').removeClass("emotionlist");
+    $('#emotionlist').addClass("emotionlistempty");
     var allChildren = $('#emotionlist').children()
     for (var i = 0; i < allChildren.length; i++) {
         allChildren[i].remove();

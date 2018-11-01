@@ -74,15 +74,23 @@ html, body {
     /*background-color:rgba(0,255,0,0.5);*/
 }
 .emotionlist{
-    margin-left:1000px;
+    border: 2px solid;
 }
+.emotionlistempty {
+    
+}
+
 .emotionlistitem{
-    color:red;
+    color:#AFABAB;
+    background-color: rgba(211,211,211, 0.25);
     text-align:center;
+    padding: 5px;
 }
 .emotionlistitem-selected{
     color:green;
+    background-color: rgba(0, 200, 0, 0.22);
     text-align:center;
+    padding: 5px;
 }
 
 .spacediv{
