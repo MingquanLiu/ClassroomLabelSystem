@@ -40,11 +40,11 @@ function addAnnotationToDb(videoURL, annotatorID, annotation, frame) {
 	return 0;
 }
 
-function dbToUITransform(annotationTable, xRatio, yRatio){ // XY ratio are currentX/originalX
-	let top = annotationTable["top"]
-	let left = annotationTable["left"]
-	let width = annotationTable["width"]
-	let height = annotationTable["height"]
+function dbToUITransform(annotation, xRatio, yRatio){ // XY ratio are currentX/originalX
+	let top = annotation.top
+	let left = annotation.left
+	let width = annotation.width
+	let height = annotation.height
     let annotationHtml = jQuery('<div/>', {
         class: 'annotation',
     });
@@ -57,24 +57,21 @@ function dbToUITransform(annotationTable, xRatio, yRatio){ // XY ratio are curre
     annotationHtml.css("left", left+'px');
     annotationHtml.css("width", width+'px');
     annotationHtml.css("height", height+'px');
-    return annotationHtml
+    annotation.html = annotationHtml
+    return annotation
 }
 
 function UITodbTransform(annotation, xRatio, yRatio, annotatorID){ // XY ratio are currentX/originalX
-    let top = parseInt(annotation.css('top'),10)
-    let left = parseInt(annotation.css('left'),10)
-    let width = parseInt(annotation.css('width'),10)
-    let height = parseInt(annotation.css('height'),10)
+	let annotationHtml = annotation.html
+    let top = parseInt(annotationHtml.css('top'),10)
+    let left = parseInt(annotationHtml.css('left'),10)
+    let width = parseInt(annotationHtml.css('width'),10)
+    let height = parseInt(annotationHtml.css('height'),10)
     top = top / yRatio
     left = left / xRatio
     width = width / xRatio
     height = height / yRatio
-	let annotationTable = []
-	annotationTable["top"] = top
-	annotationTable["left"] = left
-	annotationTable["width"] = width
-	annotationTable["height"] = height
-	annotationTable["annotatorID"] = annotatorID
+	annotation.setDBValues(top, left, width, height)
 
-    return annotationTable
+    return annotation
 }
