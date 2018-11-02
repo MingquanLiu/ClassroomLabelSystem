@@ -271,6 +271,7 @@ function select_a_annotation(x,y){
 
 class Annotation {
 
+
     constructor(user, frame, html, emotions) {
         this.user = user;
         this.frame = frame;
@@ -280,6 +281,16 @@ class Annotation {
         } else {
             this.emotions = emotions;
         }
+        this.top = -1
+        this.left = -1
+        this.width = -1
+        this.height = -1
+    }
+    setDBValues(top, left, width, height){
+        this.top = top
+        this.left = left
+        this.width = width
+        this.height = height
     }
 }
 
