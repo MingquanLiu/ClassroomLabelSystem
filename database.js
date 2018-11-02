@@ -21,7 +21,7 @@ function addAnnotationToDb(videoID, annotation) {
     	"width": annotation.width,
     	"height": annotation.height,
     	"emotions": annotation.emotions,
-        "id": annotation.annotationID;
+        "id": annotation.annotationID
   	});
     annotation.setDbId(newref.getKey());
     annotation.setAnnotationId(newref.getKey());
@@ -34,7 +34,7 @@ function deleteAnnotationFromDb(videoURL, annotation) {
     annotationTable.child(annotation.annotationID).remove();
 }
 
-function updateAnnotationPositionInDb(videoURL, annotatorID, annotation, frame) {
+function updateAnnotationPositionInDb(videoURL, annotation) {
     debugger;
     let updates = {};
     let updateData = {
@@ -45,7 +45,7 @@ function updateAnnotationPositionInDb(videoURL, annotatorID, annotation, frame) 
         "emotions": annotation.emotions,
         "id": annotation.annotationID
     };
-    updates['/Annotations/'+videoURL+'/'+annotatorID+'/'+frame.toString()+'/'+annotation.dbID] = updateData;
+    updates['/Annotations/'+videoURL+'/'+annotation.user+'/'+annotation.frame+'/'+annotation.dbID] = updateData;
     firebase.database().ref().update(updates);
 }
 
