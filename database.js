@@ -1,5 +1,5 @@
 
-function initializeDb(videoID, annotatorID, duration) {
+function initializeDb(videoID, annotatorID, totalFrames) {
 	var config = {
         apiKey: "AIzaSyDUSIwpPgxrzim4lpnM0ATCRTsmC9lbzdk",
         authDomain: "classroomvideo-49965.firebaseapp.com",
@@ -8,24 +8,43 @@ function initializeDb(videoID, annotatorID, duration) {
         storageBucket: "classroomvideo-49965.appspot.com",
         messagingSenderId: "826703245914"
       };
+
     firebase.initializeApp(config);
-    // firebase.database().ref().child('Annotations').child(vid)
+    firebase.database().ref().child('Annotations').child(videoID).set({[annotatorID]: {
+        "1": false
+    }});
+    //firebase.database().ref().child('Annotations').child(videoID).set(annotationsLists);
 }
 
 function addAnnotationToDb(videoID, annotation) {
-	let annotationTable = firebase.database().ref().child('Annotations').child('testVideoID').child(annotation.user).child(annotation.frame);
-	var newref = annotationTable.push();
-  	newref.set({
-    	"top": annotation.top,
-    	"left": annotation.left,
-    	"width": annotation.width,
-    	"height": annotation.height,
-    	"emotions": annotation.emotions,
-        "id": annotation.annotationID;
-  	});
-    annotation.setDbId(newref.getKey());
-    annotation.setAnnotationId(newref.getKey());
-    return annotation;
+    let ref = firebase.database().ref().child('Annotations').child(videoID).child(annotation.user);
+    ref.once('value', function(snapshot) {
+        debugger;
+        if (snapshot.hasChild(annotation.frame.toString())) {
+                let json = {
+                    "top": annotation.top,
+                    "left": annotation.left,
+                    "width": annotation.width,
+                    "height": annotation.height,
+                    "emotions": annotation.emotions,
+                };
+            let annotationTable = firebase.database().ref().child('Annotations').child('testVideoID').child(annotation.user).child(annotation.frame);
+            var newref = annotationTable.push();
+            newref.set(json);
+            annotation.setDbId(newref.getKey());
+            annotation.setAnnotationId(newref.getKey());
+            return annotation;
+        } else {
+            let json = [{
+                "top": annotation.top,
+                "left": annotation.left,
+                "width": annotation.width,
+                "height": annotation.height,
+                "emotions": annotation.emotions,
+            }];
+            ref.child(annotation.frame.toString()).set(json);
+        }
+    });
 }
 
 function deleteAnnotationFromDb(videoURL, annotation) {

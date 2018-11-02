@@ -6,6 +6,7 @@ var selectedAnnotation = null;
 var selectedAnnotationLabels = {};
 var annotationsByFrame = {};
 var videoURL = "http://www.rapconverter.com/SampleDownload/Sample1280.mp4";
+var videoID = "testVideoID";
 
 var xRatio = 1
 var yRatio = 1
@@ -309,7 +310,7 @@ class Annotation {
 
 function addAnnotation(annotation, frame) {
     annotation = UITodbTransform(annotation,0.5, 0.5);
-    addAnnotationToDb(videoURL, annotation);
+    addAnnotationToDb(videoID, annotation);
 	if (frame in annotationsByFrame) {
 		annotationsByFrame[frame].push(annotation);
 	} else {
