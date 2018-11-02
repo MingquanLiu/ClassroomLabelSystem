@@ -5,6 +5,7 @@ var frameDuration = 0.5
 var selectedAnnotation = null;
 var selectedAnnotationLabels = {};
 var annotationsByFrame = {};
+var videoURL = "http://www.rapconverter.com/SampleDownload/Sample1280.mp4";
 
 var xRatio = 1
 var yRatio = 1
@@ -236,6 +237,7 @@ function deleteSingleAnnotation(annotation) {
     for (let i = 0; i < allAnnotations.length; i++) {
         let atIndex = allAnnotations[i];
         if (annotation == atIndex.html) {
+            deleteAnnotationFromDb('testVideoID', atIndex)
             indexToDelete = i
         }
     }
@@ -299,9 +301,15 @@ class Annotation {
     setAnnotationId(id) {
         this.annotationID = id;
     }
+
+    setDbId(id) {
+        this.dbID = id;
+    }
 }
 
 function addAnnotation(annotation, frame) {
+    annotation = UITodbTransform(annotation,0.5, 0.5);
+    addAnnotationToDb(videoURL, annotation);
 	if (frame in annotationsByFrame) {
 		annotationsByFrame[frame].push(annotation);
 	} else {
@@ -324,7 +332,9 @@ $(document).ready(function() {
     let relativeDiffY = 0;
     let clickMode = false;
 
-    initializeDb();
+    let totalFrames = Math.floor($("#vplayer").get(0).duration/frameDuration)+1
+
+    initializeDb("testVideoID", "testUser", totalFrames);
 
     $('#page_body').on('mouseup', function (e) {
         if(drawmode){
@@ -406,6 +416,7 @@ $(document).ready(function() {
 
     $('#dltbutton').on('click', function() {
         if (selectedAnnotation != null) {
+
             deleteSingleAnnotation(selectedAnnotation);
         	var allChildren = $("#video_box").children();
         	for (var i = 0; i < allChildren.length; i++) {
@@ -558,7 +569,7 @@ $(document).ready(function() {
 
                 //this is for testing the UITodbtransform function
                 let newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation, null);
-                newAnnotation = UITodbTransform(newAnnotation,0.5, 0.5)
+
 
 
                 addAnnotation(newAnnotation, currentFrame);

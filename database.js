@@ -1,5 +1,5 @@
 
-function initializeDb() {
+function initializeDb(videoID, annotatorID, duration) {
 	var config = {
         apiKey: "AIzaSyDUSIwpPgxrzim4lpnM0ATCRTsmC9lbzdk",
         authDomain: "classroomvideo-49965.firebaseapp.com",
@@ -9,23 +9,28 @@ function initializeDb() {
         messagingSenderId: "826703245914"
       };
     firebase.initializeApp(config);
+    // firebase.database().ref().child('Annotations').child(vid)
 }
 
-function addAnnotationToDb(videoURL, annotatorID, annotation, frame) {
-	debugger;
-	let annotationTable = firebase.database().ref().child('Annotations').child(videoURL).child(annotatorID).child("1");
+function addAnnotationToDb(videoID, annotation) {
+	let annotationTable = firebase.database().ref().child('Annotations').child('testVideoID').child(annotation.user).child(annotation.frame);
 	var newref = annotationTable.push();
-  	newref.set(newref.getKey(): {
+  	newref.set({
     	"top": annotation.top,
     	"left": annotation.left,
     	"width": annotation.width,
     	"height": annotation.height,
-    	"emotions": annotation.emotions
+    	"emotions": annotation.emotions,
+        "id": annotation.annotationID;
   	});
+    annotation.setDbId(newref.getKey());
+    annotation.setAnnotationId(newref.getKey());
+    return annotation;
 }
 
-function deleteAnnotationFromDb(videoURL, annotatorID, annotation, frame) {
-    let annotationTable = firebase.database().ref().child('Annotations').child(videoURL).child(annotatorID).child("2");
+function deleteAnnotationFromDb(videoURL, annotation) {
+    debugger;
+    let annotationTable = firebase.database().ref().child('Annotations').child(videoURL).child(annotation.user).child(annotation.frame);
     annotationTable.child(annotation.annotationID).remove();
 }
 
@@ -37,9 +42,10 @@ function updateAnnotationPositionInDb(videoURL, annotatorID, annotation, frame) 
         "left": annotation.left,
         "width": annotation.width,
         "height": annotation.height,
-        "emotions": annotation.emotions
+        "emotions": annotation.emotions,
+        "id": annotation.annotationID
     };
-    updates['/Annotations/'+videoURL+'/'+annotatorID+'/'+frame.toString()+'/'+annotation.annotationID] = updateData;
+    updates['/Annotations/'+videoURL+'/'+annotatorID+'/'+frame.toString()+'/'+annotation.dbID] = updateData;
     firebase.database().ref().update(updates);
 }
 
