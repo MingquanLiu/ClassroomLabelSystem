@@ -61,7 +61,7 @@ function dbToUITransform(annotation, xRatio, yRatio){ // XY ratio are currentX/o
     return annotation
 }
 
-function UITodbTransform(annotation, xRatio, yRatio, annotatorID){ // XY ratio are currentX/originalX
+function UITodbTransform(annotation, xRatio, yRatio){ // XY ratio are currentX/originalX
 	let annotationHtml = annotation.html
     let top = parseInt(annotationHtml.css('top'),10)
     let left = parseInt(annotationHtml.css('left'),10)
