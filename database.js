@@ -24,7 +24,6 @@ function addAnnotationToDb(videoURL, annotatorID, annotation, frame) {
   	});
 }
 
-<<<<<<< HEAD
 function deleteAnnotationFromDb(videoURL, annotatorID, annotation, frame) {
     let annotationTable = firebase.database().ref().child('Annotations').child(videoURL).child(annotatorID).child("2");
     annotationTable.child(annotation.annotationID).remove();
