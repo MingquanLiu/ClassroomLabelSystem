@@ -306,6 +306,8 @@ $(document).ready(function() {
     let relativeDiffY = 0;
     let clickMode = false;
 
+    initializeDb();
+
     $('#page_body').on('mouseup', function (e) {
         if(drawmode){
             if(mouse_flag){

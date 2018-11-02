@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase-database.js"></script>
+
+    <script src="database.js" type=text/javascript></script>
     <script src="script.js" type=text/javascript></script>
 </head>
 
@@ -43,6 +49,7 @@
     <button id="dltbutton">Delete selected annotation </button>
     <button id="dltallbutton">Delete all annotations </button>
     <button id="displaybtn"> Display stored annotations </button>
+    <button id="testdb" onclick="addAnnotationToDb()"> database test button</button>
     <button id="playbutton" onclick="play_jquery()">
         Play
     </button>
