@@ -3,6 +3,7 @@
 var currentFrame = 1
 var frameDuration = 0.5
 var selectedAnnotation = null;
+var selectedAnnotationObject = null
 var selectedAnnotationLabels = {};
 var annotationsByFrame = {};
 var videoURL = "http://www.rapconverter.com/SampleDownload/Sample1280.mp4";
@@ -43,14 +44,16 @@ function deleteAllAnnotations(frame) {
 function displayStoredAnnotations() {
 	if (currentFrame in annotationsByFrame) {
 		let stored = annotationsByFrame[currentFrame];
-		for (var i = 0; i < stored.length; i++) {
-			annotationHtml = stored[i].html;
-			if(annotationHtml.attr('class') == "annotation-selected"){
-				annotationHtml.removeClass("annotation");
-    			annotationHtml.addClass("annotation-selected");
-			}
-			annotationHtml.appendTo('#video_box');
-		}
+		if(stored!=null){
+            for (var i = 0; i < stored.length; i++) {
+                annotationHtml = stored[i].html;
+                if(annotationHtml.attr('class') == "annotation-selected"){
+                    annotationHtml.removeClass("annotation");
+                    annotationHtml.addClass("annotation-selected");
+                }
+                annotationHtml.appendTo('#video_box');
+            }
+        }
 	}
 }
 
@@ -269,7 +272,7 @@ function select_a_annotation(x,y){
         for (var i = 0; i < stored.length; i++) {
             annotationHtml = stored[i].html;
             if (is_in_annotation(annotationHtml, x, y))
-                return annotationHtml
+                return stored[i]
         }
     }
     return null
@@ -475,7 +478,9 @@ $(document).ready(function() {
             const y = e.pageY;
             // First it needs to select a annotation
             deselect_label(selectedAnnotation);
-            selectedAnnotation = select_a_annotation(x,y)
+            selectedAnnotationObject = select_a_annotation(x,y)
+            if(selectedAnnotationObject!=null)
+                selectedAnnotation = selectedAnnotationObject.html
             if(selectedAnnotation == null){
                 console.log("IS NULL")
                 relativeDiffX = 0;
@@ -528,16 +533,16 @@ $(document).ready(function() {
                 let vHeight = parseInt($('#vplayer').css('height'),10)
                 let vWidth = parseInt($('#vplayer').css('width'),10)
 
-                let width = parseInt(annotationHtml.css('width'),10)
-                let height = parseInt(annotationHtml.css('height'),10)
+                let width = parseInt(selectedAnnotation.css('width'),10)
+                let height = parseInt(selectedAnnotation.css('height'),10)
                 let top = (y - relativeDiffY)
                 let left = (x - relativeDiffX)
 
                 if(left>pageX && (left+width)<(pageX+vWidth)){
-                    annotationHtml.css("left", left + 'px')
+                    selectedAnnotation.css("left", left + 'px')
                 }
                 if(top>pageY && (top+height)<(pageY+ vHeight)){
-                    annotationHtml.css("top", top + 'px')
+                    selectedAnnotation.css("top", top + 'px')
                 }
             }
         }
@@ -574,7 +579,8 @@ $(document).ready(function() {
 
 
                 addAnnotation(newAnnotation, currentFrame);
-
+                selectedAnnotationObject = newAnnotation
+                debugger
                 deselect_label(selectedAnnotation)
                 select_label(drawingAnnotation)
                 $('#video_box').css('cursor', "default");
@@ -589,17 +595,18 @@ $(document).ready(function() {
                 let vHeight = parseInt($('#vplayer').css('height'),10)
                 let vWidth = parseInt($('#vplayer').css('width'),10)
 
-                let width = parseInt(annotationHtml.css('width'),10)
-                let height = parseInt(annotationHtml.css('height'),10)
+                let width = parseInt(selectedAnnotation.css('width'),10)
+                let height = parseInt(selectedAnnotation.css('height'),10)
                 let top = (y - relativeDiffY)
                 let left = (x - relativeDiffX)
 
                 if(left>pageX && (left+width)<(pageX+vWidth)){
-                    annotationHtml.css("left", left + 'px')
+                    selectedAnnotation.css("left", left + 'px')
                 }
                 if(top>pageY && (top+height)<(pageY+ vHeight)){
-                    annotationHtml.css("top", top + 'px')
+                    selectedAnnotation.css("top", top + 'px')
                 }
+
                 relativeDiffX = 0;
                 relativeDiffY = 0;
                 clickMode = false;
