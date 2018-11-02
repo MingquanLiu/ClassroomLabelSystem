@@ -6,6 +6,9 @@ var selectedAnnotation = null;
 var selectedAnnotationLabels = {};
 var annotationsByFrame = {};
 
+var xRatio = 1
+var yRatio = 1
+
 function video_ended() {
     // What you want to do after the event
     document.getElementById("playbutton").innerText = "Play"
@@ -452,8 +455,6 @@ $(document).ready(function() {
                 drawingAnnotation = annotationHtml;
                 drawingAnnotationX = x;
                 drawingAnnotationY = y;
-                newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation, null);
-                addAnnotation(newAnnotation, currentFrame);
                 drawingAnnotation.appendTo('#video_box');
             }
         }
@@ -554,6 +555,13 @@ $(document).ready(function() {
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
                 drawingAnnotation.css("height", height+'px');
+
+                //this is for testing the UITodbtransform function
+                let newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation, null);
+                newAnnotation = UITodbTransform(newAnnotation,0.5, 0.5)
+
+
+                addAnnotation(newAnnotation, currentFrame);
 
                 deselect_label(selectedAnnotation)
                 select_label(drawingAnnotation)
