@@ -11,34 +11,42 @@ function initializeDb() {
     firebase.initializeApp(config);
 }
 
-
-function getAnnotationTable() {
-	db.child('Annotations').child('videoURL').child('annotatorID').on("value", function(snapshot) {
-    	console.log(snapshot.val());
-    	snapshot.forEach(function(data) {
-        	console.log(data.key);
-    	});
-	});
-}
-
 function addAnnotationToDb(videoURL, annotatorID, annotation, frame) {
 	debugger;
 	let annotationTable = firebase.database().ref().child('Annotations').child(videoURL).child(annotatorID).child("1");
 	var newref = annotationTable.push();
-  	newref.set({
-    	"annotationID": newref.getKey(),
-    	"x": 100,
-    	"y": 100,
-    	"width": 100,
-    	"height": 100,
-    	"tags": {
-    		"Happy": true,
-    		"Sad": false,
-    		"Frustrated": false
-    	}
+  	newref.set(newref.getKey(): {
+    	"top": annotation.top,
+    	"left": annotation.left,
+    	"width": annotation.width,
+    	"height": annotation.height,
+    	"emotions": annotation.emotions
   	});
-	return 0;
 }
+
+function deleteAnnotationFromDb(videoURL, annotatorID, annotation, frame) {
+    let annotationTable = firebase.database().ref().child('Annotations').child(videoURL).child(annotatorID).child("2");
+    annotationTable.child(annotation.annotationID).remove();
+}
+
+function updateAnnotationPositionInDb(videoURL, annotatorID, annotation, frame) {
+    debugger;
+    let updates = {};
+    let updateData = {
+        "top": annotation.top,
+        "left": annotation.left,
+        "width": annotation.width,
+        "height": annotation.height,
+        "emotions": annotation.emotions
+    };
+    updates['/Annotations/'+videoURL+'/'+annotatorID+'/'+frame.toString()+'/'+annotation.annotationID] = updateData;
+    firebase.database().ref().update(updates);
+}
+
+function updateAnnotationUsernameInDb(videoURL, annotatorID, annotation, frame) {
+    return 0;
+}
+
 
 function dbToUITransform(annotationTable, xRatio, yRatio){ // XY ratio are currentX/originalX
 	let top = annotationTable["top"]

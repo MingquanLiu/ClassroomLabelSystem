@@ -292,6 +292,10 @@ class Annotation {
         this.width = width
         this.height = height
     }
+
+    setAnnotationId(id) {
+        this.annotationID = id;
+    }
 }
 
 function addAnnotation(annotation, frame) {
