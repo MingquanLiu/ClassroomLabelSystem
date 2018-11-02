@@ -6,6 +6,9 @@ var selectedAnnotation = null;
 var selectedAnnotationLabels = {};
 var annotationsByFrame = {};
 
+var xRatio = 1
+var yRatio = 1
+
 function video_ended() {
     // What you want to do after the event
     document.getElementById("playbutton").innerText = "Play"
