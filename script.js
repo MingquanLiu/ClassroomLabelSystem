@@ -334,6 +334,9 @@ $(document).ready(function() {
     let relativeDiffX = 0;
     let relativeDiffY = 0;
     let clickMode = false;
+    //Calculation of ratio will be done here
+    xRatio = 1
+    yRatio = 1
 
     let totalFrames = Math.floor($("#vplayer").get(0).duration/frameDuration)+1
 
