@@ -7,6 +7,7 @@ var selectedAnnotationObject = null
 var selectedAnnotationLabels = {};
 var annotationsByFrame = {};
 var videoURL = "http://www.rapconverter.com/SampleDownload/Sample1280.mp4";
+var videoID = "testVideoID";
 
 var xRatio = 1
 var yRatio = 1
@@ -56,10 +57,17 @@ function displayStoredAnnotations() {
 	}
 }
 
-function updateAnnotationsOnFrameChange(time, duration) {
+function updateAnnotationsOnFrameChange(time) {
+    debugger;
     currentFrame = Math.floor(time/frameDuration)+1;
     document.getElementById('debugtext').innerHTML = "Frame Number: " + currentFrame;
     clearAllAnnotations(currentFrame);
+    if (annotationsByFrame != null && currentFrame in annotationsByFrame) {
+        let frameList = annotationsByFrame[currentFrame];
+        for (let i = 0; i < frameList.length; i++) {
+            frameList[i] = dbToUITransform(frameList[i],1,1);
+        }
+    }
     displayStoredAnnotations();
 }
 
@@ -145,7 +153,7 @@ function change_slider() {
     var percentage = parseFloat(time / duration).toFixed(2) * 100
     slider.value = percentage;
     output.innerHTML = time.toFixed(2) + " / " + duration.toFixed(2)
-	updateAnnotationsOnFrameChange(time, duration);
+	updateAnnotationsOnFrameChange(time);
 }
 
 function getAnnotationObjFromHtml(annotation) {
@@ -161,51 +169,41 @@ function getAnnotationObjFromHtml(annotation) {
 
 function displayEmotionsForAnnotation(annotation) {
     let stored = annotationsByFrame[currentFrame];
-    for (var i = 0; i < stored.length; i++) {
-        let annotationHtml = stored[i].html;
-        if (annotation[0] === annotationHtml[0]) {
-            let emotions = stored[i].emotions;
-            for (let emotion in emotions) {
-                let isSelected = emotions[emotion]
-                const entry = $('<li>'+emotion+'</li>');
-                if (isSelected) {
-                    entry.addClass("emotionlistitem-selected");
-                } else {
-                    entry.addClass("emotionlistitem");
-                }
-
-                entry.on('click', function () {
-                    let emotions_array = emotions;
-                    let emotion_value = new String(emotion);
-                    if (entry.attr('class') == "emotionlistitem-selected") {
-                        emotions_array[emotion_value] = false;
-                        entry.removeClass("emotionlistitem-selected");
-                        entry.addClass("emotionlistitem");
-                    } else {
-                        emotions_array[emotion_value] = true;
-                        entry.removeClass("emotionlistitem");
+    if (stored != null){
+        for (var i = 0; i < stored.length; i++) {
+            let annotationHtml = stored[i].html;
+            if (annotation[0] === annotationHtml[0]) {
+                let emotions = stored[i].emotions;
+                for (let emotion in emotions) {
+                    let isSelected = emotions[emotion]
+                    const entry = $('<li>'+emotion+'</li>');
+                    if (isSelected) {
                         entry.addClass("emotionlistitem-selected");
+                    } else {
+                        entry.addClass("emotionlistitem");
                     }
-                });
 
-
-                // entry.onclick = function () {
-                //     if (entry.classList.contains("emotionlistitem")) {
-                //         emotions[emotion] = true;
-                //         entry.classList.remove("emotionlistitem");
-                //         entry.classList.add("emotionlistitem-selected");
-                //     } else if (entry.classList.contains("emotionlistitem-selected")) {
-                //         emotions[emotion] = false;
-                //         entry.classList.remove("emotionlistitem-selected");
-                //         entry.classList.add("emotionlistitem");
-                //     }
-                // };
-                $("#emotionlist").append(entry);
+                    entry.on('click', function () {
+                        let emotions_array = emotions;
+                        let emotion_value = new String(emotion);
+                        if (entry.attr('class') == "emotionlistitem-selected") {
+                            emotions_array[emotion_value] = false;
+                            entry.removeClass("emotionlistitem-selected");
+                            entry.addClass("emotionlistitem");
+                        } else {
+                            emotions_array[emotion_value] = true;
+                            entry.removeClass("emotionlistitem");
+                            entry.addClass("emotionlistitem-selected");
+                        }
+                    });
+                    
+                    $("#emotionlist").append(entry);
+                }
             }
+        $('#emotionlist').removeClass("emotionlistempty");
+        $('#emotionlist').addClass("emotionlist");
         }
     }
-    $('#emotionlist').removeClass("emotionlistempty");
-    $('#emotionlist').addClass("emotionlist");
 }
 
 function emptyEmotionsList() {
@@ -312,7 +310,7 @@ class Annotation {
 
 function addAnnotation(annotation, frame) {
     annotation = UITodbTransform(annotation,0.5, 0.5);
-    // addAnnotationToDb(videoURL, annotation);
+    addAnnotationToDb(videoID, annotation);
 	if (frame in annotationsByFrame) {
 		annotationsByFrame[frame].push(annotation);
 	} else {
@@ -338,9 +336,13 @@ $(document).ready(function() {
     xRatio = 1
     yRatio = 1
 
-    let totalFrames = Math.floor($("#vplayer").get(0).duration/frameDuration)+1
-
+    let totalFrames = Math.floor($("#vplayer").get(0).duration/frameDuration)+1;
     initializeDb("testVideoID", "testUser", totalFrames);
+
+    $('#testdb').on('click', function() {
+        debugger;
+        loadStoredData(annotationsByFrame);
+    });
 
     $('#page_body').on('mouseup', function (e) {
         if(drawmode){
@@ -422,7 +424,6 @@ $(document).ready(function() {
 
     $('#dltbutton').on('click', function() {
         if (selectedAnnotation != null) {
-
             deleteSingleAnnotation(selectedAnnotation);
         	var allChildren = $("#video_box").children();
         	for (var i = 0; i < allChildren.length; i++) {
@@ -581,8 +582,7 @@ $(document).ready(function() {
 
 
                 addAnnotation(newAnnotation, currentFrame);
-                selectedAnnotationObject = newAnnotation
-                debugger
+                selectedAnnotationObject = newAnnotation;
                 deselect_label(selectedAnnotation)
                 select_label(drawingAnnotation)
                 $('#video_box').css('cursor', "default");
@@ -609,11 +609,14 @@ $(document).ready(function() {
                     selectedAnnotation.css("top", top + 'px')
                 }
 
+                selectedAnnotationObject = UITodbTransform(selectedAnnotationObject, xRatio, yRatio);
+
+                updateAnnotationPositionInDb(videoID, selectedAnnotationObject);
                 relativeDiffX = 0;
                 relativeDiffY = 0;
                 clickMode = false;
             }else{
-                deselect_label(selectedAnnotation)
+                deselect_label(selectedAnnotation);
             }
         }
     });
