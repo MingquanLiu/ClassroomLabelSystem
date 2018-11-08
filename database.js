@@ -13,10 +13,11 @@ function initializeDb(videoID, annotatorID) {
 }
 
 function loadStoredData(annotationsByFrame) {
-    videoID = "testVideoID";
-    annotatorID = "testUser";
+    let videoID = "testVideoID";
+    let annotatorID = "testUser";
+    let annotationsByFrameTemp = {}
     var initref = firebase.database().ref().child('Annotations').child(videoID).child(annotatorID);
-    initref.on('value', function(snapshot) {
+    initref.once('value').then(function(snapshot) {
         console.log(snapshot.childrenCount);
         snapshot.forEach(function(childSnapshot) {
             let frameKey = childSnapshot.key;
@@ -35,12 +36,11 @@ function loadStoredData(annotationsByFrame) {
                 }
             }
         });
-        debugger;
-        updateAnnotationsOnFrameChange(0);
+        //
     });
 }
 
-function addAnnotationToDb(videoID, annotation) {
+function addAnnotationToDb(videoID, user, annotation) {
     let ref = firebase.database().ref().child('Annotations').child(videoID).child(annotation.user);
     ref.once('value', function(snapshot) {
         debugger;
@@ -54,6 +54,7 @@ function addAnnotationToDb(videoID, annotation) {
                 "width": annotation.width,
                 "height": annotation.height,
                 "emotions": annotation.emotions,
+                "user": annotation.user,
                 "id": newref.getKey()
             };
             newref.set(json);
@@ -69,6 +70,7 @@ function addAnnotationToDb(videoID, annotation) {
                 "width": annotation.width,
                 "height": annotation.height,
                 "emotions": annotation.emotions,
+                    "user": annotation.user,
                 "id": randomkey
             }};
             annotation.setAnnotationId(randomkey);
@@ -90,6 +92,7 @@ function updateAnnotationInDb(videoURL, annotation) {
         "width": annotation.width,
         "height": annotation.height,
         "emotions": annotation.emotions,
+        "user": annotation.user,
         "id": annotation.annotationID
     };
     updates['/Annotations/'+videoURL+'/'+annotation.user+'/'+annotation.frame+'/'+annotation.annotationID] = updateData;
