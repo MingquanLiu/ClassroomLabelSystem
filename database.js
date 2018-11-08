@@ -1,5 +1,5 @@
 
-function initializeDb(videoID, annotatorID, totalFrames) {
+function initializeDb(videoID, annotatorID) {
 	var config = {
         apiKey: "AIzaSyDUSIwpPgxrzim4lpnM0ATCRTsmC9lbzdk",
         authDomain: "classroomvideo-49965.firebaseapp.com",
@@ -82,7 +82,7 @@ function deleteAnnotationFromDb(videoURL, annotation) {
     annotationTable.child(annotation.annotationID).remove();
 }
 
-function updateAnnotationPositionInDb(videoURL, annotation) {
+function updateAnnotationInDb(videoURL, annotation) {
     let updates = {};
     let updateData = {
         "top": annotation.top,

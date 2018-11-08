@@ -74,10 +74,19 @@ html, body {
     /*background-color:rgba(0,255,0,0.5);*/
 }
 .emotionlist{
-    border: 2px solid;
+    /*border: 2px solid;*/
 }
 .emotionlistempty {
     
+}
+
+.labelentrybox {
+    display: block;
+    width: 85%;
+    font-family: OpenSans-Regular;
+    font-size: 15px;
+    color: #666666;
+    line-height: 1.2;
 }
 
 .emotionlistitem{
@@ -93,9 +102,7 @@ html, body {
     padding: 5px;
 }
 
-.spacediv{
-    width:50;
-    opacity:0;
+#rightsidemenu{
 }
 
 /*video{*/

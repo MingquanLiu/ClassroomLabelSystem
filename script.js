@@ -168,9 +168,10 @@ function getAnnotationObjFromHtml(annotation) {
 }
 
 function displayEmotionsForAnnotation(annotation) {
+    debugger;
     let stored = annotationsByFrame[currentFrame];
     if (stored != null){
-        for (var i = 0; i < stored.length; i++) {
+        for (let i = 0; i < stored.length; i++) {
             let annotationHtml = stored[i].html;
             if (annotation[0] === annotationHtml[0]) {
                 let emotions = stored[i].emotions;
@@ -182,24 +183,32 @@ function displayEmotionsForAnnotation(annotation) {
                     } else {
                         entry.addClass("emotionlistitem");
                     }
-
+                    let stored_anno = stored[i]
                     entry.on('click', function () {
+                        debugger;
                         let emotions_array = emotions;
                         let emotion_value = new String(emotion);
                         if (entry.attr('class') == "emotionlistitem-selected") {
                             emotions_array[emotion_value] = false;
+                            updateAnnotationInDb(videoID, stored_anno);
                             entry.removeClass("emotionlistitem-selected");
                             entry.addClass("emotionlistitem");
                         } else {
                             emotions_array[emotion_value] = true;
+                            updateAnnotationInDb(videoID, stored_anno);
                             entry.removeClass("emotionlistitem");
                             entry.addClass("emotionlistitem-selected");
                         }
                     });
-                    
+
                     $("#emotionlist").append(entry);
                 }
             }
+        let nameEntryField = $('<input>')
+        nameEntryField.css('labelentrybox');
+        $("#rightsidemenu").append(nameEntryField);
+
+        //let submitButton
         $('#emotionlist').removeClass("emotionlistempty");
         $('#emotionlist').addClass("emotionlist");
         }
@@ -333,8 +342,7 @@ $(document).ready(function() {
     let relativeDiffY = 0;
     let clickMode = false;
 
-    let totalFrames = Math.floor($("#vplayer").get(0).duration/frameDuration)+1;
-    initializeDb("testVideoID", "testUser", totalFrames);
+    initializeDb("testVideoID", "testUser");
 
     $('#testdb').on('click', function() {
         debugger;
@@ -608,7 +616,7 @@ $(document).ready(function() {
 
                 selectedAnnotationObject = UITodbTransform(selectedAnnotationObject, xRatio, yRatio);
 
-                updateAnnotationPositionInDb(videoID, selectedAnnotationObject);
+                updateAnnotationInDb(videoID, selectedAnnotationObject);
                 relativeDiffX = 0;
                 relativeDiffY = 0;
                 clickMode = false;
