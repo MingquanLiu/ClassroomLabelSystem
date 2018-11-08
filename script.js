@@ -2,12 +2,12 @@
 
 var currentFrame = 1
 var frameDuration = 0.5
-var selectedAnnotation = null;
 var selectedAnnotationObject = null
 var selectedAnnotationLabels = {};
 var annotationsByFrame = {};
 var videoURL = "http://www.rapconverter.com/SampleDownload/Sample1280.mp4";
 var videoID = "testVideoID";
+var loggedIn = "testUser";
 
 var xRatio = 1
 var yRatio = 1
@@ -21,18 +21,16 @@ function video_ended() {
 function clearAllAnnotations(frame) {
 	var allChildren = $("#video_box").children();
 	for (var i = 0; i < allChildren.length; i++) {
-		child = allChildren[i]
-		vpc = document.getElementById("vplayer_container");
+		let child = allChildren[i]
+		let vpc = document.getElementById("vplayer_container");
 		if (vpc != child) {
-            if (selectedAnnotation != null) {
-                if (child === selectedAnnotation[0]) {
-                    deselect_label(selectedAnnotation);
-                }
+		    if (selectedAnnotationObject != null) {
+		        deselect_label(selectedAnnotationObject);
             }
 			allChildren[i].remove();
 		}
 	}
-	selectedAnnotation = null;
+	selectedAnnotationObject = null;
 }
 
 //Deletes all annotation data for given frame, then calls clearAllAnnotations to clear the UI
@@ -58,7 +56,6 @@ function displayStoredAnnotations() {
 }
 
 function updateAnnotationsOnFrameChange(time) {
-    debugger;
     currentFrame = Math.floor(time/frameDuration)+1;
     document.getElementById('debugtext').innerHTML = "Frame Number: " + currentFrame;
     clearAllAnnotations(currentFrame);
@@ -169,40 +166,35 @@ function getAnnotationObjFromHtml(annotation) {
 
 function displayEmotionsForAnnotation(annotation) {
     let stored = annotationsByFrame[currentFrame];
-    if (stored != null){
-        for (var i = 0; i < stored.length; i++) {
-            let annotationHtml = stored[i].html;
-            if (annotation[0] === annotationHtml[0]) {
-                let emotions = stored[i].emotions;
-                for (let emotion in emotions) {
-                    let isSelected = emotions[emotion]
-                    const entry = $('<li>'+emotion+'</li>');
-                    if (isSelected) {
-                        entry.addClass("emotionlistitem-selected");
-                    } else {
-                        entry.addClass("emotionlistitem");
-                    }
-
-                    entry.on('click', function () {
-                        let emotions_array = emotions;
-                        let emotion_value = new String(emotion);
-                        if (entry.attr('class') == "emotionlistitem-selected") {
-                            emotions_array[emotion_value] = false;
-                            entry.removeClass("emotionlistitem-selected");
-                            entry.addClass("emotionlistitem");
-                        } else {
-                            emotions_array[emotion_value] = true;
-                            entry.removeClass("emotionlistitem");
-                            entry.addClass("emotionlistitem-selected");
-                        }
-                    });
-                    
-                    $("#emotionlist").append(entry);
-                }
+    if (stored != null) {
+        let emotions = annotation.emotions;
+        for (let emotion in emotions) {
+            let isSelected = emotions[emotion]
+            const entry = $('<li>' + emotion + '</li>');
+            if (isSelected) {
+                entry.addClass("emotionlistitem-selected");
+            } else {
+                entry.addClass("emotionlistitem");
             }
+
+            entry.on('click', function () {
+                let emotions_array = emotions;
+                let emotion_value = new String(emotion);
+                if (entry.attr('class') == "emotionlistitem-selected") {
+                    emotions_array[emotion_value] = false;
+                    entry.removeClass("emotionlistitem-selected");
+                    entry.addClass("emotionlistitem");
+                } else {
+                    emotions_array[emotion_value] = true;
+                    entry.removeClass("emotionlistitem");
+                    entry.addClass("emotionlistitem-selected");
+                }
+            });
+
+            $("#emotionlist").append(entry);
+        }
         $('#emotionlist').removeClass("emotionlistempty");
         $('#emotionlist').addClass("emotionlist");
-        }
     }
 }
 
@@ -216,29 +208,28 @@ function emptyEmotionsList() {
 }
 
 function select_label(annotation) {
-    annotation.removeClass("annotation");
-    annotation.addClass("annotation-selected");
-    selectedAnnotation = annotation
-    displayEmotionsForAnnotation(selectedAnnotation);
+    annotation.html.removeClass("annotation");
+    annotation.html.addClass("annotation-selected");
+    selectedAnnotationObject = annotation
+    displayEmotionsForAnnotation(selectedAnnotationObject);
 }
 
 function deselect_label(annotation) {
     if (annotation != null) {
-        annotation.removeClass("annotation-selected");
-        annotation.addClass("annotation");
+        annotation.html.removeClass("annotation-selected");
+        annotation.html.addClass("annotation");
     }
-    selectedAnnotation = null
+    selectedAnnotationObject = null;
     emptyEmotionsList();
 }
 
 function deleteSingleAnnotation(annotation) {
-    var annotationObj = getAnnotationObjFromHtml(annotation);
-    let indexToDelete = -1
+    let indexToDelete = -1;
     let allAnnotations = annotationsByFrame[currentFrame];
     for (let i = 0; i < allAnnotations.length; i++) {
         let atIndex = allAnnotations[i];
-        if (annotation == atIndex.html) {
-            deleteAnnotationFromDb('testVideoID', atIndex)
+        if (annotation.html == atIndex.html) {
+            deleteAnnotationFromDb('testVideoID', atIndex);
             indexToDelete = i
         }
     }
@@ -309,8 +300,8 @@ class Annotation {
 }
 
 function addAnnotation(annotation, frame) {
-    annotation = UITodbTransform(annotation,0.5, 0.5);
-    addAnnotationToDb(videoID, annotation);
+    annotation = UITodbTransform(annotation,1, 1);
+    addAnnotationToDb(videoID, loggedIn, annotation);
 	if (frame in annotationsByFrame) {
 		annotationsByFrame[frame].push(annotation);
 	} else {
@@ -333,14 +324,13 @@ $(document).ready(function() {
     let relativeDiffY = 0;
     let clickMode = false;
     //Calculation of ratio will be done here
-    xRatio = 1
-    yRatio = 1
+    xRatio = 1;
+    yRatio = 1;
 
     let totalFrames = Math.floor($("#vplayer").get(0).duration/frameDuration)+1;
-    initializeDb("testVideoID", "testUser", totalFrames);
+    initializeDb("testVideoID", loggedIn, totalFrames);
 
     $('#testdb').on('click', function() {
-        debugger;
         loadStoredData(annotationsByFrame);
     });
 
@@ -368,9 +358,16 @@ $(document).ready(function() {
                 drawingAnnotation.css("left", left+'px');
                 drawingAnnotation.css("width", width+'px');
                 drawingAnnotation.css("height", height+'px');
-                deselect_label(selectedAnnotation)
-                select_label(drawingAnnotation)
-                selectedAnnotation = drawingAnnotation
+
+                //this is for testing the UITodbtransform function
+                let newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation, null);
+
+
+
+                addAnnotation(newAnnotation, currentFrame);
+                deselect_label(selectedAnnotationObject);
+                selectedAnnotationObject = newAnnotation;
+                select_label(newAnnotation)
                 $('#video_box').css('cursor', "default");
                 drawmode = false;
                 mouse_flag = false;
@@ -423,16 +420,9 @@ $(document).ready(function() {
     });
 
     $('#dltbutton').on('click', function() {
-        if (selectedAnnotation != null) {
-            deleteSingleAnnotation(selectedAnnotation);
-        	var allChildren = $("#video_box").children();
-        	for (var i = 0; i < allChildren.length; i++) {
-				var tableChild = allChildren[i];
-				if (tableChild === selectedAnnotation[0]) {	
-				    selectedAnnotation.remove();
-            		selectedAnnotation = null
-				}
-			}
+        if (selectedAnnotationObject != null) {
+            deleteSingleAnnotation(selectedAnnotationObject);
+        	selectedAnnotationObject.html[0].remove();
         }
         emptyEmotionsList();
     });
@@ -480,20 +470,18 @@ $(document).ready(function() {
             const x = e.pageX;
             const y = e.pageY;
             // First it needs to select a annotation
-            deselect_label(selectedAnnotation);
+            deselect_label(selectedAnnotationObject);
             selectedAnnotationObject = select_a_annotation(x,y)
-            if(selectedAnnotationObject!=null)
-                selectedAnnotation = selectedAnnotationObject.html
-            if(selectedAnnotation == null){
+            if(selectedAnnotationObject == null){
                 console.log("IS NULL")
                 relativeDiffX = 0;
                 relativeDiffY = 0;
                 clickMode = false;
             }
             else {
-                select_label(selectedAnnotation)
-                let top =  parseInt(selectedAnnotation.css('top'),10)
-                let left = parseInt(selectedAnnotation.css('left'),10)
+                select_label(selectedAnnotationObject);
+                let top =  parseInt(selectedAnnotationObject.html.css('top'),10)
+                let left = parseInt(selectedAnnotationObject.html.css('left'),10)
                 const x = e.pageX;
                 const y = e.pageY;
                 relativeDiffX = x-left;
@@ -536,16 +524,16 @@ $(document).ready(function() {
                 let vHeight = parseInt($('#vplayer').css('height'),10)
                 let vWidth = parseInt($('#vplayer').css('width'),10)
 
-                let width = parseInt(selectedAnnotation.css('width'),10)
-                let height = parseInt(selectedAnnotation.css('height'),10)
+                let width = parseInt(selectedAnnotationObject.html.css('width'),10)
+                let height = parseInt(selectedAnnotationObject.html.css('height'),10)
                 let top = (y - relativeDiffY)
                 let left = (x - relativeDiffX)
 
                 if(left>pageX && (left+width)<(pageX+vWidth)){
-                    selectedAnnotation.css("left", left + 'px')
+                    selectedAnnotationObject.html.css("left", left + 'px')
                 }
                 if(top>pageY && (top+height)<(pageY+ vHeight)){
-                    selectedAnnotation.css("top", top + 'px')
+                    selectedAnnotationObject.html.css("top", top + 'px')
                 }
             }
         }
@@ -577,14 +565,14 @@ $(document).ready(function() {
                 drawingAnnotation.css("height", height+'px');
 
                 //this is for testing the UITodbtransform function
-                let newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation, null);
+                let newAnnotation = new Annotation(loggedIn, currentFrame, drawingAnnotation, null);
 
 
 
                 addAnnotation(newAnnotation, currentFrame);
+                deselect_label(selectedAnnotationObject);
                 selectedAnnotationObject = newAnnotation;
-                deselect_label(selectedAnnotation)
-                select_label(drawingAnnotation)
+                select_label(newAnnotation)
                 $('#video_box').css('cursor', "default");
                 drawmode = false;
                 mouse_flag = false;
@@ -592,21 +580,23 @@ $(document).ready(function() {
             }
         }else{
             if(clickMode){
+                debugger;
                 const x = e.pageX;
                 const y = e.pageY;
                 let vHeight = parseInt($('#vplayer').css('height'),10)
                 let vWidth = parseInt($('#vplayer').css('width'),10)
 
-                let width = parseInt(selectedAnnotation.css('width'),10)
-                let height = parseInt(selectedAnnotation.css('height'),10)
+                let width = parseInt(selectedAnnotationObject.html.css('width'),10)
+                let height = parseInt(selectedAnnotationObject.html.css('height'),10)
                 let top = (y - relativeDiffY)
                 let left = (x - relativeDiffX)
 
                 if(left>pageX && (left+width)<(pageX+vWidth)){
-                    selectedAnnotation.css("left", left + 'px')
+                    selectedAnnotationObject.html.css("left", left + 'px')
+
                 }
                 if(top>pageY && (top+height)<(pageY+ vHeight)){
-                    selectedAnnotation.css("top", top + 'px')
+                    selectedAnnotationObject.html.css("top", top + 'px')
                 }
 
                 selectedAnnotationObject = UITodbTransform(selectedAnnotationObject, xRatio, yRatio);
@@ -616,7 +606,7 @@ $(document).ready(function() {
                 relativeDiffY = 0;
                 clickMode = false;
             }else{
-                deselect_label(selectedAnnotation);
+                deselect_label(selectedAnnotationObject);
             }
         }
     });
