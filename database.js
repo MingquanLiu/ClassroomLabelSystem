@@ -27,7 +27,7 @@ function loadStoredData(annotationsByFrame) {
                 let newAnno = new Annotation("testUser", frameKey, null, dbAnnotation["emotions"]);
                 newAnno.setDBValues(dbAnnotation["top"],dbAnnotation["left"],dbAnnotation["width"],dbAnnotation["height"]);
                 newAnno.setAnnotationId(dbAnnotation["id"]);
-
+                newAnno.setDbId(dbAnnotationKey)
                 if (frameKey in annotationsByFrame) {
                     annotationsByFrame[frameKey].push(newAnno);
                 } else {
@@ -36,6 +36,9 @@ function loadStoredData(annotationsByFrame) {
                 }
             }
         });
+        debugger
+        loadFaceIdList()
+        updateAnnotationsOnFrameChange(0)
         //
     });
 }
@@ -45,7 +48,6 @@ function addAnnotationToDb(videoID, user, annotation) {
     ref.once('value', function(snapshot) {
         debugger;
         if (snapshot.hasChild(annotation.frame.toString())) {
-            debugger;
             let annotationTable = firebase.database().ref().child('Annotations').child('testVideoID').child(annotation.user).child(annotation.frame);
             var newref = annotationTable.push();
             let json = {
@@ -60,9 +62,7 @@ function addAnnotationToDb(videoID, user, annotation) {
             newref.set(json);
             annotation.setDbId(newref.getKey());
             annotation.setAnnotationId(newref.getKey());
-            return annotation;
         } else {
-            debugger;
             let randomkey = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             let json = {[randomkey]: {
                 "top": annotation.top,
@@ -74,14 +74,17 @@ function addAnnotationToDb(videoID, user, annotation) {
                 "id": randomkey
             }};
             annotation.setAnnotationId(randomkey);
+            annotation.setDbId(randomkey);
             ref.child(annotation.frame.toString()).set(json);
         }
+        debugger
+        select_label(annotation)
     });
 }
 
 function deleteAnnotationFromDb(videoURL, annotation) {
     let annotationTable = firebase.database().ref().child('Annotations').child(videoURL).child(annotation.user).child(annotation.frame);
-    annotationTable.child(annotation.annotationID).remove();
+    annotationTable.child(annotation.dbID).remove();
 }
 
 function updateAnnotationInDb(videoURL, annotation) {
@@ -95,7 +98,7 @@ function updateAnnotationInDb(videoURL, annotation) {
         "user": annotation.user,
         "id": annotation.annotationID
     };
-    updates['/Annotations/'+videoURL+'/'+annotation.user+'/'+annotation.frame+'/'+annotation.annotationID] = updateData;
+    updates['/Annotations/'+videoURL+'/'+annotation.user+'/'+annotation.frame+'/'+annotation.dbID] = updateData;
     firebase.database().ref().update(updates);
 }
 
@@ -137,4 +140,9 @@ function UITodbTransform(annotation, xRatio, yRatio){ // XY ratio are currentX/o
 	annotation.setDBValues(top, left, width, height)
 
     return annotation
+}
+
+function loadFaceIdList(){
+    faceIdList.push( "Mike")
+    faceIdList.push( "Jerry")
 }

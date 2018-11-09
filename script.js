@@ -9,6 +9,8 @@ var videoURL = "http://www.rapconverter.com/SampleDownload/Sample1280.mp4";
 var videoID = "testVideoID";
 var loggedIn = "testUser";
 
+var faceIdList = []
+
 var xRatio = 1
 var yRatio = 1
 
@@ -165,7 +167,6 @@ function getAnnotationObjFromHtml(annotation) {
 }
 
 function displayEmotionsForAnnotation(annotation) {
-    debugger;
     let stored = annotationsByFrame[currentFrame];
     if (stored != null) {
         let emotions = annotation.emotions;
@@ -218,7 +219,9 @@ function select_label(annotation) {
     annotation.html.removeClass("annotation");
     annotation.html.addClass("annotation-selected");
     selectedAnnotationObject = annotation
+
     displayEmotionsForAnnotation(selectedAnnotationObject);
+    showFaceLabel(selectedAnnotationObject);
 }
 
 function deselect_label(annotation) {
@@ -228,18 +231,13 @@ function deselect_label(annotation) {
     }
     selectedAnnotationObject = null;
     emptyEmotionsList();
+    hideFaceLabel(selectedAnnotationObject)
 }
 
 function deleteSingleAnnotation(annotation) {
-    let indexToDelete = -1;
-    let allAnnotations = annotationsByFrame[currentFrame];
-    for (let i = 0; i < allAnnotations.length; i++) {
-        let atIndex = allAnnotations[i];
-        if (annotation.html == atIndex.html) {
-            deleteAnnotationFromDb('testVideoID', atIndex);
-            indexToDelete = i
-        }
-    }
+    debugger;
+    deleteAnnotationFromDb('testVideoID', annotation);
+    let indexToDelete = annotationsByFrame[currentFrame].indexOf(annotation)
     if (indexToDelete >= 0) {
         annotationsByFrame[currentFrame].splice(indexToDelete, 1);
     }
@@ -273,6 +271,98 @@ function select_a_annotation(x,y){
     return null
 }
 
+
+/* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+function showDropDown() {
+    document.getElementById("myDropdown").classList.toggle("show");
+    document.getElementById("add_new").classList.toggle("show")
+}
+
+function showFaceLabel(annotation) {
+
+    if( $("#face_id_but").is(':visible')){
+
+    }
+    // $("face_id_but").css("display", "block");
+    else{
+        document.getElementById("myInput").value = ""
+        for( var i = 0; i < faceIdList.length; i++){
+            const faceId = $('<a>' + faceIdList[i] + '</a>');
+            faceId.on('click', function () {
+                annotation.setAnnotationId(this.innerHTML)
+                debugger
+                updateAnnotationInDb(videoID, annotation)
+
+                document.getElementById("face_id_but").innerHTML = this.innerHTML
+                showDropDown()
+            })
+            $("#myDropdown").append(faceId)
+
+        }
+        document.getElementById("face_id_but").classList.toggle("show");
+        document.getElementById("face_id_but").innerHTML = annotation.annotationID
+    }
+
+}
+
+
+function hideFaceLabel(annotation) {
+    var allChildren = $('#myDropdown').children()
+    for (var i = 1; i < allChildren.length; i++) {
+        allChildren[i].remove();
+    }
+    if ($("#face_id_but").is(':visible')) {
+        document.getElementById("face_id_but").classList.toggle("show");
+    }
+    if ($("#myDropdown").is(':visible')) {
+        showDropDown()
+    }
+}
+
+function add_new_face_id() {
+    debugger
+    new_face = document.getElementById("myInput").value
+    if(new_face != null){
+        selectedAnnotationObject.setAnnotationId(new_face)
+        updateAnnotationInDb(videoID, selectedAnnotationObject)
+        document.getElementById("face_id_but").innerHTML = new_face
+        faceIdList.push(new_face)
+        document.getElementById("myInput").value = ""
+        for( var i = 0; i < faceIdList.length; i++){
+            const faceId = $('<a>' + faceIdList[i] + '</a>');
+            faceId.on('click', function () {
+                selectedAnnotationObject.setAnnotationId(this.innerHTML)
+                debugger
+                updateAnnotationInDb(videoID, selectedAnnotationObject)
+
+                document.getElementById("face_id_but").innerHTML = this.innerHTML
+                showDropDown()
+            })
+            $("#myDropdown").append(faceId)
+
+        }
+        showDropDown()
+    }
+
+}
+
+
+
+function filterFunction() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    div = document.getElementById("myDropdown");
+    a = div.getElementsByTagName("a");
+    for (i = 0; i < a.length; i++) {
+        if (a[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
+            a[i].style.display = "";
+        } else {
+            a[i].style.display = "none";
+        }
+    }
+}
 class Annotation {
 
 
@@ -319,6 +409,7 @@ function addAnnotation(annotation, frame) {
 
 
 $(document).ready(function() {
+
     let drawmode = false;
     let mouse_flag = false;
     let drawingAnnotation = null;
@@ -339,6 +430,7 @@ $(document).ready(function() {
     $('#testdb').on('click', function() {
         loadStoredData(annotationsByFrame);
     });
+    loadStoredData(annotationsByFrame)
 
     $('#page_body').on('mouseup', function (e) {
         if(drawmode){
@@ -369,11 +461,10 @@ $(document).ready(function() {
                 let newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation, null);
 
 
-
-                addAnnotation(newAnnotation, currentFrame);
                 deselect_label(selectedAnnotationObject);
+                addAnnotation(newAnnotation, currentFrame);
                 selectedAnnotationObject = newAnnotation;
-                select_label(newAnnotation)
+ //               select_label(newAnnotation)
                 $('#video_box').css('cursor', "default");
                 drawmode = false;
                 mouse_flag = false;
@@ -427,8 +518,11 @@ $(document).ready(function() {
 
     $('#dltbutton').on('click', function() {
         if (selectedAnnotationObject != null) {
-            deleteSingleAnnotation(selectedAnnotationObject);
-        	selectedAnnotationObject.html[0].remove();
+            obj = selectedAnnotationObject
+            deselect_label(selectedAnnotationObject)
+
+            deleteSingleAnnotation(obj);
+            obj.html[0].remove();
         }
         emptyEmotionsList();
     });
@@ -574,11 +668,10 @@ $(document).ready(function() {
                 let newAnnotation = new Annotation(loggedIn, currentFrame, drawingAnnotation, null);
 
 
-
-                addAnnotation(newAnnotation, currentFrame);
                 deselect_label(selectedAnnotationObject);
+                addAnnotation(newAnnotation, currentFrame);
                 selectedAnnotationObject = newAnnotation;
-                select_label(newAnnotation)
+                //select_label(newAnnotation)
                 $('#video_box').css('cursor', "default");
                 drawmode = false;
                 mouse_flag = false;
@@ -586,7 +679,6 @@ $(document).ready(function() {
             }
         }else{
             if(clickMode){
-                debugger;
                 const x = e.pageX;
                 const y = e.pageY;
                 let vHeight = parseInt($('#vplayer').css('height'),10)
