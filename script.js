@@ -99,9 +99,11 @@ function change_frame(isNext) {
     var duration = $("#vplayer").get(0).duration;
     var changed_time;
     if (isNext) {
-        changed_time = cTime + frameDuration;
+        if (currentFrame != Math.floor(duration/frameDuration)+1){
+            changed_time = (currentFrame)*frameDuration;
+        }
     } else {
-        changed_time = cTime - frameDuration;
+        changed_time = (currentFrame-2)*frameDuration;
     }
 
     if (changed_time > duration) {
