@@ -437,7 +437,6 @@ $(document).ready(function() {
     $('#page_body').on('mouseup', function (e) {
         if(drawmode){
             if(mouse_flag){
-                document.getElementById('debugtext').innerHTML = "ON Mouse Up";
                 const x = e.pageX;
                 const y = e.pageY;
 
@@ -509,11 +508,9 @@ $(document).ready(function() {
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
             drawmode = false;
-            document.getElementById('debugtext').innerHTML = "DRAW MODE OFF";
             $('#video_box').css('cursor', 'default');
         } else {
             drawmode = true;
-            document.getElementById('debugtext').innerHTML = "DRAW MODE ON";
             $('#video_box').css('cursor', 'crosshair');
         }
     });
@@ -558,7 +555,6 @@ $(document).ready(function() {
                 mouse_flag = true;
                 const x = e.pageX;
                 const y = e.pageY;
-                document.getElementById('debugtext').innerHTML = "(" + x + ", " + y + ")";
                 let annotationHtml = jQuery('<div/>', {
                     class: 'annotation',
                 });
@@ -644,7 +640,6 @@ $(document).ready(function() {
     $('#video_box').on('mouseup', function (e) {
         if(drawmode){
             if(mouse_flag){
-                document.getElementById('debugtext').innerHTML = "ON Mouse Up";
                 const x = e.pageX;
                 const y = e.pageY;
 
