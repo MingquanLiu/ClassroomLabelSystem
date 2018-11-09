@@ -183,10 +183,12 @@ function displayEmotionsForAnnotation(annotation) {
                 let emotion_value = new String(emotion);
                 if (entry.attr('class') == "emotionlistitem-selected") {
                     emotions_array[emotion_value] = false;
+                    updateAnnotationInDb(videoID, annotation)
                     entry.removeClass("emotionlistitem-selected");
                     entry.addClass("emotionlistitem");
                 } else {
                     emotions_array[emotion_value] = true;
+                    updateAnnotationInDb(videoID, annotation)
                     entry.removeClass("emotionlistitem");
                     entry.addClass("emotionlistitem-selected");
                 }
