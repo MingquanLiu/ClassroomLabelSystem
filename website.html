@@ -30,9 +30,19 @@
             <video class = "video" id="vplayer" src="http://www.rapconverter.com/SampleDownload/Sample1280.mp4" ontimeupdate="change_slider()"  onloadeddata="resize_slider()" onended="video_ended()"></video>
         </div>
     </div>
-    <div id="rightsidemenu"> 
+    <div id="rightsidemenu" class="right_side_menu">
         <ul id="emotionlist" style="list-style-type:none" class="emotionlistempty">
         </ul>
+        <div id = "face_id_div"class="dropdown">
+            <div id = "button_div" class="button_div">
+                <button id = "face_id_but" onclick="showDropDown()" class="dropbtn">faceid</button>
+                <button id = "add_new" onclick="add_new_face_id()" class="addnew">add new</button>
+            </div>
+            <div id="myDropdown" class="dropdown-content">
+                <input type="text" placeholder="Search.." id="myInput" onkeyup="filterFunction()" class ="input_box">
+                <!--<a href="#about">About</a>-->
+            </div>
+        </div>
     </div>
 </div>
 <div>
@@ -41,26 +51,26 @@
     </div>
 </div>
 <div id="bottom" class="vcontrols">
-    <button id="drawbutton">Add an annotation </button>
-    <button id="dltbutton">Delete selected annotation </button>
-    <button id="dltallbutton">Delete all annotations </button>
-    <button id="displaybtn"> Display stored annotations </button>
-    <button id="testdb"> database test button</button>
-    <button id="playbutton" onclick="play_jquery()">
-        Play
-    </button>
-    <button id="restartbutton" onclick="restart_video()">
-        Restart!
-    </button>
-    <button id="rewindbutton" onclick="rewind_video()">
-        Rewind!
-    </button>
-    <button id="lastFrame" onclick="change_frame(false)">
-        Last Frame!
-    </button>
-    <button id="nextFrame" onclick="change_frame(true)">
-        Next Frame!
-    </button>
+
+        <button id="playbutton" onclick="play_jquery()" class="vcontrolsbtn">
+            Play
+        </button>
+        <button id="restartbutton" onclick="restart_video()" class="vcontrolsbtn">
+            Restart!
+        </button>
+        <button id="rewindbutton" onclick="rewind_video()" class="vcontrolsbtn">
+            Rewind!
+        </button>
+        <button id="lastFrame" onclick="change_frame(false)" class="vcontrolsbtn">
+            Last Frame!
+        </button>
+        <button id="nextFrame" onclick="change_frame(true)" class="vcontrolsbtn">
+            Next Frame!
+        </button>
+        <button id="drawbutton"  class="vcontrolsbtn">Add an annotation </button>
+        <button id="dltbutton" class="vcontrolsbtn">Delete selected annotation </button>
+        <!--<button id="dltallbutton" class="vcontrolsbtn">Delete all annotations </button>-->
+        <button id="displaybtn" class="vcontrolsbtn"> Display stored annotations </button>
 
     <view class = "view" id="demo" > 18</view>
     <view id="debugtext">DEBUG</view>
