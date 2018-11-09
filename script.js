@@ -235,15 +235,9 @@ function deselect_label(annotation) {
 }
 
 function deleteSingleAnnotation(annotation) {
-    let indexToDelete = -1;
-    let allAnnotations = annotationsByFrame[currentFrame];
-    for (let i = 0; i < allAnnotations.length; i++) {
-        let atIndex = allAnnotations[i];
-        if (annotation.html == atIndex.html) {
-            deleteAnnotationFromDb('testVideoID', atIndex);
-            indexToDelete = i
-        }
-    }
+    debugger;
+    deleteAnnotationFromDb('testVideoID', annotation);
+    let indexToDelete = annotationsByFrame[currentFrame].indexOf(annotation)
     if (indexToDelete >= 0) {
         annotationsByFrame[currentFrame].splice(indexToDelete, 1);
     }

@@ -84,7 +84,7 @@ function addAnnotationToDb(videoID, user, annotation) {
 
 function deleteAnnotationFromDb(videoURL, annotation) {
     let annotationTable = firebase.database().ref().child('Annotations').child(videoURL).child(annotation.user).child(annotation.frame);
-    annotationTable.child(annotation.annotationID).remove();
+    annotationTable.child(annotation.dbID).remove();
 }
 
 function updateAnnotationInDb(videoURL, annotation) {
