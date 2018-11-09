@@ -51,8 +51,10 @@
                     var dbPass = childData['password'];
                     if (dbUsername == username) {
                         if (dbPass == password) {
-                            //login successful
+                            debugger;
                             console.log("LOGIN SUCCESS")
+                            // $("#loginstuff").remove();
+                            // $("#loginheader").remove();
                             var windowVar = window.open("../website.html",'_self');
                             windowVar.userLoggedIn = username;
                         } else {

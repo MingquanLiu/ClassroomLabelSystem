@@ -416,5 +416,51 @@ input.input100 {
   }
 }
 
+/* ------------------------------------------------------------------------*/
+
+@import "compass/css3";
+
+* {box-sizing: border-box;}
+
+.vselect-body {
+  padding: 20px;
+}
+
+.vselect-ul {
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  overflow: scroll;
+  margin: 0;
+  padding: 0;
+  
+  border: 2px solid #ccc;
+  
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  
+  -webkit-overflow-scrolling: touch;
+}
+
+.vselect-li {
+  padding: 10px 20px;
+  
+  border-bottom: 1px solid #ccc;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:nth-child(even) {
+    background: #f8f8f8;
+  }
+}
+
+.listbox-area {
+  box-sizing: border-box;
+}
+
 
 
