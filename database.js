@@ -57,11 +57,11 @@ function addAnnotationToDb(videoID, user, annotation) {
                 "height": annotation.height,
                 "emotions": annotation.emotions,
                 "user": annotation.user,
-                "id": newref.getKey()
+                "id": "Unlabeled"
             };
             newref.set(json);
             annotation.setDbId(newref.getKey());
-            annotation.setAnnotationId(newref.getKey());
+            annotation.setAnnotationId("Unlabeled");
         } else {
             let randomkey = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
             let json = {[randomkey]: {
@@ -71,9 +71,9 @@ function addAnnotationToDb(videoID, user, annotation) {
                 "height": annotation.height,
                 "emotions": annotation.emotions,
                     "user": annotation.user,
-                "id": randomkey
+                "id": "Unlabeled"
             }};
-            annotation.setAnnotationId(randomkey);
+            annotation.setAnnotationId("Unlabeled");
             annotation.setDbId(randomkey);
             ref.child(annotation.frame.toString()).set(json);
         }
