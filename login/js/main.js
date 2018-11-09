@@ -45,7 +45,14 @@
         if (unameCheck == true && passCheck == true) {
             let ref = firebase.database().ref().child('Users');
             ref.orderByChild("username").equalTo(username).once("value",snapshot => {
+                let numChildren = snapshot.numChildren();
+                if (numChildren == 0) {
+                    $("#usernametxt").val("");
+                    $("#passwordtxt").val("");
+                    alert("Invalid username/password combination. Please try again!")
+                }
                 snapshot.forEach(function(childSnapshot) {
+                    debugger;
                     var childData = childSnapshot.val();
                     var dbUsername = childData['username'];
                     var dbPass = childData['password'];
@@ -57,14 +64,8 @@
                             // $("#loginheader").remove();
                             var windowVar = window.open("../website.html",'_self');
                             windowVar.userLoggedIn = username;
-                        } else {
-                            alert("Invalid username/password combination. Please try again!")
-                            $("#passwordtxt").val("");
-                        }
-                    } else {
-                        alert("Invalid username/password combination. Please try again!")
-                        $("#passwordtxt").val("");
-                    }
+                        } 
+                    } 
                 });
             });
         }
