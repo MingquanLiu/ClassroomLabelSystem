@@ -3,7 +3,6 @@
 var currentFrame = 1
 var frameDuration = 0.5
 var selectedAnnotationObject = null
-var selectedAnnotationLabels = {};
 var annotationsByFrame = {};
 var videoURL = "http://www.rapconverter.com/SampleDownload/Sample1280.mp4";
 var videoID = "testVideoID";
@@ -13,6 +12,38 @@ var faceIdList = []
 
 var xRatio = 1
 var yRatio = 1
+
+class Annotation {
+
+    constructor(user, frame, html, emotions) {
+        this.user = user;
+        this.frame = frame;
+        this.html = html;
+        if (emotions == null) {
+            this.emotions = {"Happy":false, "Sad":false, "Frustrated":false, "Engaged":false, "Asleep":false};
+        } else {
+            this.emotions = emotions;
+        }
+        this.top = -1
+        this.left = -1
+        this.width = -1
+        this.height = -1
+    }
+    setDBValues(top, left, width, height){
+        this.top = top
+        this.left = left
+        this.width = width
+        this.height = height
+    }
+
+    setAnnotationId(id) {
+        this.annotationID = id;
+    }
+
+    setDbId(id) {
+        this.dbID = id;
+    }
+}
 
 function video_ended() {
     // What you want to do after the event
@@ -35,10 +66,106 @@ function clearAllAnnotations(frame) {
 	selectedAnnotationObject = null;
 }
 
-//Deletes all annotation data for given frame, then calls clearAllAnnotations to clear the UI
-function deleteAllAnnotations(frame) {
-	annotationsByFrame[frame] = [];
-	clearAllAnnotations(frame);
+function displayEmotionsForAnnotation(annotation) {
+    let stored = annotationsByFrame[currentFrame];
+    if (stored != null) {
+        let emotions = annotation.emotions;
+        for (let emotion in emotions) {
+            let isSelected = emotions[emotion]
+            const entry = $('<li>' + emotion + '</li>');
+            if (isSelected) {
+                entry.addClass("emotionlistitem-selected");
+            } else {
+                entry.addClass("emotionlistitem");
+            }
+
+            entry.on('click', function () {
+                let emotions_array = emotions;
+                let emotion_value = new String(emotion);
+                if (entry.attr('class') == "emotionlistitem-selected") {
+                    emotions_array[emotion_value] = false;
+                    updateAnnotationInDb(videoID, annotation)
+                    entry.removeClass("emotionlistitem-selected");
+                    entry.addClass("emotionlistitem");
+                } else {
+                    emotions_array[emotion_value] = true;
+                    updateAnnotationInDb(videoID, annotation)
+                    entry.removeClass("emotionlistitem");
+                    entry.addClass("emotionlistitem-selected");
+                }
+            });
+
+            $("#emotionlist").append(entry);
+        }
+
+        $('#emotionlist').removeClass("emotionlistempty");
+        $('#emotionlist').addClass("emotionlist");
+    }
+}
+
+function emptyEmotionsList() {
+    $('#emotionlist').removeClass("emotionlist");
+    $('#emotionlist').addClass("emotionlistempty");
+    var allChildren = $('#emotionlist').children()
+    for (var i = 0; i < allChildren.length; i++) {
+        allChildren[i].remove();
+    }
+}
+
+function select_label(annotation) {
+    annotation.html.removeClass("annotation");
+    annotation.html.addClass("annotation-selected");
+    selectedAnnotationObject = annotation
+
+    displayEmotionsForAnnotation(selectedAnnotationObject);
+    showFaceLabel(selectedAnnotationObject);
+}
+
+function deselect_label(annotation) {
+    if (annotation != null) {
+        annotation.html.removeClass("annotation-selected");
+        annotation.html.addClass("annotation");
+    }
+    selectedAnnotationObject = null;
+    emptyEmotionsList();
+    hideFaceLabel()
+}
+
+function deleteSingleAnnotation(annotation) {
+    debugger;
+    deleteAnnotationFromDb('testVideoID', annotation);
+    let indexToDelete = annotationsByFrame[currentFrame].indexOf(annotation)
+    if (indexToDelete >= 0) {
+        annotationsByFrame[currentFrame].splice(indexToDelete, 1);
+    }
+}
+
+function is_in_annotation(annotation, x, y){
+    let top = parseInt(annotation.css('top'),10)
+    let left = parseInt(annotation.css('left'),10)
+    let width = parseInt(annotation.css('width'),10)
+    let height = parseInt(annotation.css('height'),10)
+    console.log(top+" "+left+" "+width+" "+height)
+    console.log(x+" "+y)
+    if(x<left || x>left+width){
+        return false
+    }
+    if(y<top || y>top+height){
+        return false
+    }
+    return true
+}
+
+function select_a_annotation(x,y){
+    if (currentFrame in annotationsByFrame) {
+        let stored = annotationsByFrame[currentFrame];
+        for (var i = 0; i < stored.length; i++) {
+            annotationHtml = stored[i].html;
+            if (is_in_annotation(annotationHtml, x, y))
+                return stored[i]
+        }
+    }
+    return null
 }
 
 function displayStoredAnnotations() {
@@ -71,7 +198,6 @@ function updateAnnotationsOnFrameChange(time) {
 }
 
 function show_slider_value() {
-    // document.getElementById("playbutton").innerText = "Play"
     var slider = document.getElementById("myRange");
     var output = document.getElementById("demo");
     var mediaElement = $("#vplayer").get(0);
@@ -118,10 +244,8 @@ function change_frame(isNext) {
 }
 
 function restart_video() {
-    // $('#restartbutton').click(function () {
     $("#vplayer").get(0).currentTime = 0.0
     $("#vplayer").get(0).play();
-    // })
 }
 
 function rewind_video() {
@@ -134,12 +258,6 @@ function rewind_video() {
     } else {
         mediaElement.currentTime = mediaElement.currentTime - 2;
     }
-}
-
-function resize_canvas() {
-    $("#myCanvas").css("border", "3px solid red");
-    $('#myCanvas').css('height', $('#vplayer').css('height'));
-    $('#myCanvas').css('width', $('#vplayer').css('width'));
 }
 
 function resize_slider() {
@@ -156,123 +274,6 @@ function change_slider() {
     output.innerHTML = time.toFixed(2) + " / " + duration.toFixed(2)
 	updateAnnotationsOnFrameChange(time);
 }
-
-function getAnnotationObjFromHtml(annotation) {
-    let stored = annotationsByFrame[currentFrame];
-    for (var i = 0; i < stored.length; i++) {
-        let annotationHtml = stored[i].html;
-        if (annotation[0] === annotationHtml[0]) {
-            return stored[i];
-        }
-    }
-    return null;
-}
-
-function displayEmotionsForAnnotation(annotation) {
-    let stored = annotationsByFrame[currentFrame];
-    if (stored != null) {
-        let emotions = annotation.emotions;
-        for (let emotion in emotions) {
-            let isSelected = emotions[emotion]
-            const entry = $('<li>' + emotion + '</li>');
-            if (isSelected) {
-                entry.addClass("emotionlistitem-selected");
-            } else {
-                entry.addClass("emotionlistitem");
-            }
-
-            entry.on('click', function () {
-                let emotions_array = emotions;
-                let emotion_value = new String(emotion);
-                if (entry.attr('class') == "emotionlistitem-selected") {
-                    emotions_array[emotion_value] = false;
-                    updateAnnotationInDb(videoID, annotation)
-                    entry.removeClass("emotionlistitem-selected");
-                    entry.addClass("emotionlistitem");
-                } else {
-                    emotions_array[emotion_value] = true;
-                    updateAnnotationInDb(videoID, annotation)
-                    entry.removeClass("emotionlistitem");
-                    entry.addClass("emotionlistitem-selected");
-                }
-            });
-
-            $("#emotionlist").append(entry);
-        }
-        // let nameEntryField = $('<input>')
-        // nameEntryField.css('labelentrybox');
-        // $("#rightsidemenu").append(nameEntryField);
-
-        $('#emotionlist').removeClass("emotionlistempty");
-        $('#emotionlist').addClass("emotionlist");
-    }
-}
-
-function emptyEmotionsList() {
-    $('#emotionlist').removeClass("emotionlist");
-    $('#emotionlist').addClass("emotionlistempty");
-    var allChildren = $('#emotionlist').children()
-    for (var i = 0; i < allChildren.length; i++) {
-        allChildren[i].remove();
-    }
-}
-
-function select_label(annotation) {
-    annotation.html.removeClass("annotation");
-    annotation.html.addClass("annotation-selected");
-    selectedAnnotationObject = annotation
-
-    displayEmotionsForAnnotation(selectedAnnotationObject);
-    showFaceLabel(selectedAnnotationObject);
-}
-
-function deselect_label(annotation) {
-    if (annotation != null) {
-        annotation.html.removeClass("annotation-selected");
-        annotation.html.addClass("annotation");
-    }
-    selectedAnnotationObject = null;
-    emptyEmotionsList();
-    hideFaceLabel(selectedAnnotationObject)
-}
-
-function deleteSingleAnnotation(annotation) {
-    debugger;
-    deleteAnnotationFromDb('testVideoID', annotation);
-    let indexToDelete = annotationsByFrame[currentFrame].indexOf(annotation)
-    if (indexToDelete >= 0) {
-        annotationsByFrame[currentFrame].splice(indexToDelete, 1);
-    }
-}
-
-function is_in_annotation(annotation, x, y){
-    let top = parseInt(annotation.css('top'),10)
-    let left = parseInt(annotation.css('left'),10)
-    let width = parseInt(annotation.css('width'),10)
-    let height = parseInt(annotation.css('height'),10)
-    console.log(top+" "+left+" "+width+" "+height)
-    console.log(x+" "+y)
-    if(x<left || x>left+width){
-        return false
-    }
-    if(y<top || y>top+height){
-        return false
-    }
-    return true
-}
-
-function select_a_annotation(x,y){
-    if (currentFrame in annotationsByFrame) {
-        let stored = annotationsByFrame[currentFrame];
-        for (var i = 0; i < stored.length; i++) {
-            annotationHtml = stored[i].html;
-            if (is_in_annotation(annotationHtml, x, y))
-                return stored[i]
-        }
-    }
-    return null
-}
-
 
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
@@ -308,8 +309,7 @@ function showFaceLabel(annotation) {
 
 }
 
-
-function hideFaceLabel(annotation) {
+function hideFaceLabel() {
     var allChildren = $('#myDropdown').children()
     for (var i = 1; i < allChildren.length; i++) {
         allChildren[i].remove();
@@ -346,10 +346,7 @@ function add_new_face_id() {
         }
         showDropDown()
     }
-
 }
-
-
 
 function filterFunction() {
     var input, filter, ul, li, a, i;
@@ -365,38 +362,6 @@ function filterFunction() {
         }
     }
 }
-class Annotation {
-
-
-    constructor(user, frame, html, emotions) {
-        this.user = user;
-        this.frame = frame;
-        this.html = html;
-        if (emotions == null) {
-            this.emotions = {"Happy":false, "Sad":false, "Frustrated":false, "Engaged":false, "Asleep":false};
-        } else {
-            this.emotions = emotions;
-        }
-        this.top = -1
-        this.left = -1
-        this.width = -1
-        this.height = -1
-    }
-    setDBValues(top, left, width, height){
-        this.top = top
-        this.left = left
-        this.width = width
-        this.height = height
-    }
-
-    setAnnotationId(id) {
-        this.annotationID = id;
-    }
-
-    setDbId(id) {
-        this.dbID = id;
-    }
-}
 
 function addAnnotation(annotation, frame) {
     annotation = UITodbTransform(annotation,1, 1);
@@ -410,14 +375,14 @@ function addAnnotation(annotation, frame) {
 }
 
 
-$(document).ready(function() {
 
+
+$(document).ready(function() {
     let drawmode = false;
     let mouse_flag = false;
     let drawingAnnotation = null;
     let drawingAnnotationX = 0;
     let drawingAnnotationY = 0;
-    let newAnnotationObj = null;
     let pageX = 10;
     let pageY = 80;
     let relativeDiffX = 0;
@@ -427,11 +392,88 @@ $(document).ready(function() {
     xRatio = 1;
     yRatio = 1;
 
-    initializeDb("testVideoID", "testUser");
+    function setValuesForAnnotation(annotation, top, left, height, width){
+        if(top != null){
+            annotation.css("top", top+'px');
+        }
+        if(left != null){
+            annotation.css("left", left+'px');
+        }
+        if(height != null){
+            annotation.css("width", width+'px');
+        }
+        if(width != null){
+            annotation.css("height", height+'px');
+        }
+    }
 
-    $('#testdb').on('click', function() {
-        loadStoredData(annotationsByFrame);
-    });
+    function movingLogic(x, y){
+        let vHeight = parseInt($('#vplayer').css('height'),10)
+        let vWidth = parseInt($('#vplayer').css('width'),10)
+
+        let width = parseInt(selectedAnnotationObject.html.css('width'),10)
+        let height = parseInt(selectedAnnotationObject.html.css('height'),10)
+        let top = (y - relativeDiffY)
+        let left = (x - relativeDiffX)
+
+        if(left>pageX && (left+width)<(pageX+vWidth)){
+            setValuesForAnnotation(selectedAnnotationObject.html,null, left, null, null)
+        }
+        if(top>pageY && (top+height)<(pageY+ vHeight)){
+            setValuesForAnnotation(selectedAnnotationObject.html,top, null, null, null)
+        }
+    }
+
+    function drawingLogic(x, y){
+        let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
+        let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
+        let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
+        let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
+        let vHeight = parseInt($('#vplayer').css('height'),10)
+        let vWidth = parseInt($('#vplayer').css('width'),10)
+        if( (pageY+vHeight)<(top+height)){
+            height = pageY+vHeight- top;
+        }
+        if((pageX+vWidth) <(left+width)){
+            width = pageX+ vWidth - left;
+        }
+        setValuesForAnnotation(drawingAnnotation, top, left, height, width)
+    }
+
+    function resetDrawingVariables(){
+        $('#video_box').css('cursor', "default");
+        drawmode = false;
+        mouse_flag = false;
+        drawingAnnotation = null
+    }
+
+    function resetClickingVariables(){
+        relativeDiffX = 0;
+        relativeDiffY = 0;
+        clickMode = false;
+    }
+
+    function createDrawing(x, y){
+        mouse_flag = true;
+        let annotationHtml = jQuery('<div/>', {
+            class: 'annotation',
+        });
+        drawingAnnotation = annotationHtml;
+        drawingAnnotationX = x;
+        drawingAnnotationY = y;
+        drawingAnnotation.appendTo('#video_box');
+    }
+
+    function highlightClicking(x, y){
+        select_label(selectedAnnotationObject);
+        let top =  parseInt(selectedAnnotationObject.html.css('top'),10)
+        let left = parseInt(selectedAnnotationObject.html.css('left'),10)
+        relativeDiffX = x-left;
+        relativeDiffY = y-top;
+        clickMode = true;
+    }
+
+    initializeDb("testVideoID", "testUser");
     loadStoredData(annotationsByFrame)
 
     $('#page_body').on('mouseup', function (e) {
@@ -439,42 +481,16 @@ $(document).ready(function() {
             if(mouse_flag){
                 const x = e.pageX;
                 const y = e.pageY;
-
-                let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
-                let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
-                let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
-                let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
-                let vHeight = parseInt($('#vplayer').css('height'),10)
-                let vWidth = parseInt($('#vplayer').css('width'),10)
-                if( (pageY+vHeight)<(top+height)){
-                    height = pageY+vHeight- top;
-                }
-                if((pageX+vWidth) <(left+width)){
-                    width = pageX+ vWidth - left;
-                }
-
-                drawingAnnotation.css("top", top+'px');
-                drawingAnnotation.css("left", left+'px');
-                drawingAnnotation.css("width", width+'px');
-                drawingAnnotation.css("height", height+'px');
-
-                //this is for testing the UITodbtransform function
+                drawingLogic(x, y)
                 let newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation, null);
-
-
                 deselect_label(selectedAnnotationObject);
                 addAnnotation(newAnnotation, currentFrame);
                 selectedAnnotationObject = newAnnotation;
- //               select_label(newAnnotation)
-                $('#video_box').css('cursor', "default");
-                drawmode = false;
-                mouse_flag = false;
-                drawingAnnotation = null
+                resetDrawingVariables()
             }
         }
         if(clickMode == true)
-        clickMode = false;
-        //document.getElementById('debugtext').innerHTML = "Clicked"
+            clickMode = false;
     })
     // $('#page_body').on('mousemove', function (e) {
     //     if(drawmode) {
@@ -539,29 +555,12 @@ $(document).ready(function() {
         emptyEmotionsList();
     });
 
-    $('#displaybtn').on('click', displayStoredAnnotations);
-
-    $('#item1').on('click', function() {
-        if ($('#item1').attr('class')== "emotionlistitem") {
-            $('#item1').attr('class', "emotionlistitem-selected");
-        } else if ($('#item1').attr('class') == "emotionlistitem-selected") {
-            $('#item1').attr('class', "emotionlistitem" );
-        }
-    });
-
     $('#video_box').on('mousedown', function (e) {
         if (drawmode == true) {
             if(mouse_flag == false){
-                mouse_flag = true;
                 const x = e.pageX;
                 const y = e.pageY;
-                let annotationHtml = jQuery('<div/>', {
-                    class: 'annotation',
-                });
-                drawingAnnotation = annotationHtml;
-                drawingAnnotationX = x;
-                drawingAnnotationY = y;
-                drawingAnnotation.appendTo('#video_box');
+                createDrawing(x, y)
             }
         }
         else{
@@ -570,144 +569,56 @@ $(document).ready(function() {
             // First it needs to select a annotation
             deselect_label(selectedAnnotationObject);
             selectedAnnotationObject = select_a_annotation(x,y)
+
             if(selectedAnnotationObject == null){
-                console.log("IS NULL")
-                relativeDiffX = 0;
-                relativeDiffY = 0;
-                clickMode = false;
+                resetClickingVariables()
             }
             else {
-                select_label(selectedAnnotationObject);
-                let top =  parseInt(selectedAnnotationObject.html.css('top'),10)
-                let left = parseInt(selectedAnnotationObject.html.css('left'),10)
                 const x = e.pageX;
                 const y = e.pageY;
-                relativeDiffX = x-left;
-                relativeDiffY = y-top;
-                clickMode = true;
+                highlightClicking(x, y)
             }
         }
     });
 
     $('#video_box').on('mousemove', function (e) {
-
+        const x = e.pageX;
+        const y = e.pageY;
         if(drawmode) {
             if (mouse_flag) {
-                const x = e.pageX;
-                const y = e.pageY;
-
-                let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
-                let top = (drawingAnnotationY >y)?y:drawingAnnotationY;
-                let width = Math.abs(x-drawingAnnotationX);
-                let height = Math.abs(y-drawingAnnotationY);
-                let vHeight = parseInt($('#vplayer').css('height'),10)
-                let vWidth = parseInt($('#vplayer').css('width'),10)
-                if( (pageY+vHeight)<(top+height)){
-                    height = pageY+vHeight- top;
-                }
-                if((pageX+vWidth) <(left+width)){
-                    width = pageX+ vWidth - left;
-                }
-
-                drawingAnnotation.css("top", top+'px');
-                drawingAnnotation.css("left", left+'px');
-                drawingAnnotation.css("width", width+'px');
-                drawingAnnotation.css("height", height+'px');
+                drawingLogic(x, y)
             }
         }else{
             if(clickMode){
-                const x = e.pageX;
-                const y = e.pageY;
-
-                let vHeight = parseInt($('#vplayer').css('height'),10)
-                let vWidth = parseInt($('#vplayer').css('width'),10)
-
-                let width = parseInt(selectedAnnotationObject.html.css('width'),10)
-                let height = parseInt(selectedAnnotationObject.html.css('height'),10)
-                let top = (y - relativeDiffY)
-                let left = (x - relativeDiffX)
-
-                if(left>pageX && (left+width)<(pageX+vWidth)){
-                    selectedAnnotationObject.html.css("left", left + 'px')
-                }
-                if(top>pageY && (top+height)<(pageY+ vHeight)){
-                    selectedAnnotationObject.html.css("top", top + 'px')
-                }
+                movingLogic(x, y)
             }
         }
     });
 
     $('#video_box').on('mouseup', function (e) {
+        const x = e.pageX;
+        const y = e.pageY;
         if(drawmode){
             if(mouse_flag){
-                const x = e.pageX;
-                const y = e.pageY;
-
-                let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
-                let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
-                let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
-                let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
-                let vHeight = parseInt($('#vplayer').css('height'),10)
-                let vWidth = parseInt($('#vplayer').css('width'),10)
-                if( (pageY+vHeight)<(top+height)){
-                    height = pageY+vHeight- top;
-                }
-                if((pageX+vWidth) <(left+width)){
-                    width = pageX+ vWidth - left;
-                }
-
-                drawingAnnotation.css("top", top+'px');
-                drawingAnnotation.css("left", left+'px');
-                drawingAnnotation.css("width", width+'px');
-                drawingAnnotation.css("height", height+'px');
-
+                drawingLogic(x, y)
                 //this is for testing the UITodbtransform function
                 let newAnnotation = new Annotation(loggedIn, currentFrame, drawingAnnotation, null);
-
-
                 deselect_label(selectedAnnotationObject);
                 addAnnotation(newAnnotation, currentFrame);
                 selectedAnnotationObject = newAnnotation;
-                //select_label(newAnnotation)
-                $('#video_box').css('cursor', "default");
-                drawmode = false;
-                mouse_flag = false;
-                drawingAnnotation = null
+                resetDrawingVariables()
             }
         }else{
             if(clickMode){
-                const x = e.pageX;
-                const y = e.pageY;
-                let vHeight = parseInt($('#vplayer').css('height'),10)
-                let vWidth = parseInt($('#vplayer').css('width'),10)
-
-                let width = parseInt(selectedAnnotationObject.html.css('width'),10)
-                let height = parseInt(selectedAnnotationObject.html.css('height'),10)
-                let top = (y - relativeDiffY)
-                let left = (x - relativeDiffX)
-
-                if(left>pageX && (left+width)<(pageX+vWidth)){
-                    selectedAnnotationObject.html.css("left", left + 'px')
-
-                }
-                if(top>pageY && (top+height)<(pageY+ vHeight)){
-                    selectedAnnotationObject.html.css("top", top + 'px')
-                }
-
+                movingLogic(x, y)
                 selectedAnnotationObject = UITodbTransform(selectedAnnotationObject, xRatio, yRatio);
-
                 updateAnnotationInDb(videoID, selectedAnnotationObject);
-                relativeDiffX = 0;
-                relativeDiffY = 0;
-                clickMode = false;
+                resetClickingVariables()
+
             }else{
                 deselect_label(selectedAnnotationObject);
             }
         }
     });
-
-    // Authenticated DB IAM role: Cognito_ClassroomLabellingSystemAuth_Role
-    // Unauthenticated DB IAM role: Cognito_ClassroomLabellingSystemUnauth_Role
-    // identity pool id: "us-east-2:4d581a21-bd4a-4f91-a41e-30b8db3397e1"
 
 });
