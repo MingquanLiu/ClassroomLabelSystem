@@ -1,7 +1,37 @@
 /** {margin: 0; padding: 0;}*/
 
+
+h1 {
+  display: block;
+  font-family: OpenSans-Regular;
+  font-size: 30px;
+  color: #555555;
+  line-height: 1.2;
+  text-align: center;
+}
+
+@font-face {
+  font-family: OpenSans-Regular;
+  src: url('../fonts/OpenSans/OpenSans-Regular.ttf'); 
+}
+
+body {
+  background-color: #e9faff;
+}
+
 .vselect-body {
-  margin: 20px;
+  margin:auto;
+  width: 500px;
+  height:500px;
+  background: #fff;
+  /*border-radius: 10px;*/
+  overflow: hidden;
+
+  box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+  -o-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
+  -ms-box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.1);
 }
  
 .vselect-list {
@@ -10,16 +40,14 @@
 }
  
 .vselect-item-header {
-  font: bold 20px/1.5 Helvetica, Verdana, sans-serif;
-}
- 
-.vselect-item-image {
-  float: left;
-  margin: 0 15px 0 0;
+  /*font: bold 20px/1.5 Helvetica, Verdana, sans-serif;*/
+  font-family: OpenSans-Regular;
 }
  
 .vselect-item-para {
-  font: 200 12px/1.5 Georgia, Times New Roman, serif;
+  /*font: 200 12px/1.5 Georgia, Times New Roman, serif;*/
+  font-family: OpenSans-Regular;
+  font-size:12px;
 }
  
 .vselect-item {

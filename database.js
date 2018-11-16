@@ -1,5 +1,5 @@
 
-function initializeDb(videoID, annotatorID) {
+function initializeDb() {
 	var config = {
         apiKey: "AIzaSyDUSIwpPgxrzim4lpnM0ATCRTsmC9lbzdk",
         authDomain: "classroomvideo-49965.firebaseapp.com",
@@ -9,12 +9,9 @@ function initializeDb(videoID, annotatorID) {
         messagingSenderId: "826703245914"
       };
     firebase.initializeApp(config);
-    //firebase.database().ref().child('Annotations').child(videoID).set(annotationsLists);
 }
 
-function loadStoredData(annotationsByFrame) {
-    let videoID = "testVideoID";
-    let annotatorID = "testUser";
+function loadStoredData(annotationsByFrame, videoID, annotatorID) {
     let annotationsByFrameTemp = {}
     var initref = firebase.database().ref().child('Annotations').child(videoID).child(annotatorID);
     initref.once('value').then(function(snapshot) {
@@ -36,10 +33,8 @@ function loadStoredData(annotationsByFrame) {
                 }
             }
         });
-        debugger
         loadFaceIdList()
         updateAnnotationsOnFrameChange(0)
-        //
     });
 }
 
@@ -48,7 +43,7 @@ function addAnnotationToDb(videoID, user, annotation) {
     ref.once('value', function(snapshot) {
         debugger;
         if (snapshot.hasChild(annotation.frame.toString())) {
-            let annotationTable = firebase.database().ref().child('Annotations').child('testVideoID').child(annotation.user).child(annotation.frame);
+            let annotationTable = firebase.database().ref().child('Annotations').child(videoID).child(annotation.user).child(annotation.frame);
             var newref = annotationTable.push();
             let json = {
                 "top": annotation.top,
@@ -77,7 +72,6 @@ function addAnnotationToDb(videoID, user, annotation) {
             annotation.setDbId(randomkey);
             ref.child(annotation.frame.toString()).set(json);
         }
-        debugger
         select_label(annotation)
     });
 }

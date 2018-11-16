@@ -4,9 +4,9 @@ var currentFrame = 1
 var frameDuration = 0.5
 var selectedAnnotationObject = null
 var annotationsByFrame = {};
-var videoURL = "http://www.rapconverter.com/SampleDownload/Sample1280.mp4";
-var videoID = "testVideoID";
-var loggedIn = "testUser";
+var videoURL = localStorage['videoURL'];
+var videoID = localStorage['videoID'];
+var loggedIn = localStorage['userLoggedIn'];
 
 var faceIdList = []
 
@@ -391,6 +391,8 @@ $(document).ready(function() {
     //Calculation of ratio will be done here
     xRatio = 1;
     yRatio = 1;
+    
+    $("#vplayer").attr("src", videoURL);
 
     function setValuesForAnnotation(annotation, top, left, height, width){
         if(top != null){
@@ -473,8 +475,8 @@ $(document).ready(function() {
         clickMode = true;
     }
 
-    initializeDb("testVideoID", "testUser");
-    loadStoredData(annotationsByFrame)
+    initializeDb();
+    loadStoredData(annotationsByFrame, videoID, loggedIn)
 
     $('#page_body').on('mouseup', function (e) {
         if(drawmode){
@@ -482,7 +484,7 @@ $(document).ready(function() {
                 const x = e.pageX;
                 const y = e.pageY;
                 drawingLogic(x, y)
-                let newAnnotation = new Annotation("testUser", currentFrame, drawingAnnotation, null);
+                let newAnnotation = new Annotation(loggedIn, currentFrame, drawingAnnotation, null);
                 deselect_label(selectedAnnotationObject);
                 addAnnotation(newAnnotation, currentFrame);
                 selectedAnnotationObject = newAnnotation;
