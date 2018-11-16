@@ -27,7 +27,7 @@ $(document).ready(function() {
         var data = snapshot.val();
         var assignments = data[username];
 
-        for (videoID in assignments) {
+        for (let videoID in assignments) {
         	let videoURL = assignments[videoID];
         	let header = $('<h3>' + videoID + '</h3>');
         	let p = $('<p>' + videoURL + '</p>');
