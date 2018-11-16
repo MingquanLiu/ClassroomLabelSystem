@@ -52,18 +52,16 @@
                     alert("Invalid username/password combination. Please try again!")
                 }
                 snapshot.forEach(function(childSnapshot) {
-                    debugger;
                     var childData = childSnapshot.val();
                     var dbUsername = childData['username'];
                     var dbPass = childData['password'];
                     if (dbUsername == username) {
                         if (dbPass == password) {
-                            debugger;
                             console.log("LOGIN SUCCESS")
                             // $("#loginstuff").remove();
                             // $("#loginheader").remove();
-                            var windowVar = window.open("../website.html",'_self');
-                            windowVar.userLoggedIn = username;
+                            localStorage['userLoggedIn'] = username;
+                            var windowVar = window.open("video-select.html",'_self');
                         } 
                     } 
                 });

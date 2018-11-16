@@ -5,9 +5,9 @@ var frameDuration = 0.5
 var selectedAnnotationObject = null
 var selectedAnnotationLabels = {};
 var annotationsByFrame = {};
-var videoURL = "http://www.rapconverter.com/SampleDownload/Sample1280.mp4";
-var videoID = "testVideoID";
-var loggedIn = "testUser";
+var videoURL = localStorage['videoURL'];
+var videoID = localStorage['videoID'];
+var loggedIn = localStorage['userLoggedIn'];
 
 var faceIdList = []
 
@@ -426,6 +426,9 @@ $(document).ready(function() {
     //Calculation of ratio will be done here
     xRatio = 1;
     yRatio = 1;
+
+    $("#vplayer").attr("src", videoURL);
+
 
     initializeDb("testVideoID", "testUser");
 

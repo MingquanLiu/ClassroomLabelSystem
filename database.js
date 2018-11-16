@@ -44,11 +44,11 @@ function loadStoredData(annotationsByFrame) {
 }
 
 function addAnnotationToDb(videoID, user, annotation) {
-    let ref = firebase.database().ref().child('Annotations').child(videoID).child(annotation.user);
+    let ref = firebase.database().ref().child('Annotations').child('id2').child(annotation.user);
     ref.once('value', function(snapshot) {
         debugger;
         if (snapshot.hasChild(annotation.frame.toString())) {
-            let annotationTable = firebase.database().ref().child('Annotations').child('testVideoID').child(annotation.user).child(annotation.frame);
+            let annotationTable = firebase.database().ref().child('Annotations').child('id2').child(annotation.user).child(annotation.frame);
             var newref = annotationTable.push();
             let json = {
                 "top": annotation.top,
@@ -77,7 +77,6 @@ function addAnnotationToDb(videoID, user, annotation) {
             annotation.setDbId(randomkey);
             ref.child(annotation.frame.toString()).set(json);
         }
-        debugger
         select_label(annotation)
     });
 }
