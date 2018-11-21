@@ -133,7 +133,7 @@ function deselect_label(annotation) {
 
 function deleteSingleAnnotation(annotation) {
     debugger;
-    deleteAnnotationFromDb('testVideoID', annotation);
+    deleteAnnotationFromDb(videoID, annotation);
     let indexToDelete = annotationsByFrame[currentFrame].indexOf(annotation)
     if (indexToDelete >= 0) {
         annotationsByFrame[currentFrame].splice(indexToDelete, 1);
@@ -534,7 +534,7 @@ $(document).ready(function() {
 
     $('#dltbutton').on('click', function() {
         if (selectedAnnotationObject != null) {
-            obj = selectedAnnotationObject
+            let obj = selectedAnnotationObject
             deselect_label(selectedAnnotationObject)
 
             deleteSingleAnnotation(obj);
