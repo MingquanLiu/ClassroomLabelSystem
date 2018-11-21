@@ -323,7 +323,6 @@ function hideFaceLabel() {
 }
 
 function add_new_face_id() {
-    debugger
     new_face = document.getElementById("myInput").value
     if(new_face != null){
         selectedAnnotationObject.setAnnotationId(new_face)
@@ -391,7 +390,7 @@ $(document).ready(function() {
     //Calculation of ratio will be done here
     xRatio = 1;
     yRatio = 1;
-    
+
     $("#vplayer").attr("src", videoURL);
 
     function setValuesForAnnotation(annotation, top, left, height, width){

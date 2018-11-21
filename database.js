@@ -21,7 +21,7 @@ function loadStoredData(annotationsByFrame, videoID, annotatorID) {
             var childData = childSnapshot.val();
             for (var dbAnnotationKey in childData) {
                 let dbAnnotation = childData[dbAnnotationKey];
-                let newAnno = new Annotation("testUser", frameKey, null, dbAnnotation["emotions"]);
+                let newAnno = new Annotation(dbAnnotation['user'], frameKey, null, dbAnnotation["emotions"]);
                 newAnno.setDBValues(dbAnnotation["top"],dbAnnotation["left"],dbAnnotation["width"],dbAnnotation["height"]);
                 newAnno.setAnnotationId(dbAnnotation["id"]);
                 newAnno.setDbId(dbAnnotationKey)
@@ -33,8 +33,8 @@ function loadStoredData(annotationsByFrame, videoID, annotatorID) {
                 }
             }
         });
-        loadFaceIdList()
-        updateAnnotationsOnFrameChange(0)
+        loadFaceIdList();
+        updateAnnotationsOnFrameChange(0);
     });
 }
 
