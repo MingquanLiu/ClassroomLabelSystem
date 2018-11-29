@@ -609,6 +609,18 @@ $(document).ready(function() {
                 addAnnotation(newAnnotation, currentFrame);
                 selectedAnnotationObject = newAnnotation;
                 resetDrawingVariables()
+                let canvasHtml = jQuery('<canvas/>', {
+                    id: 'canvas',
+                });
+                canvasHtml.appendTo('#page_body');
+                //setValuesForAnnotation(canvasHtml, 0,0, selectedAnnotationObject.height, selectedAnnotationObject.width);
+                var ctx = document.getElementById("canvas").getContext("2d")
+                var video = document.getElementById("vplayer")
+                //ctx.drawImage(video, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
+                //ctx.drawImage(video, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height, selectedAnnotationObject.left, selectedAnnotationObject.top, 200, 200)
+
+                ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, 200, 200)
+
             }
         }else{
             if(clickMode){
