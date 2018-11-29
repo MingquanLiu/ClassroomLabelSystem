@@ -133,7 +133,7 @@ function deselect_label(annotation) {
 
 function deleteSingleAnnotation(annotation) {
     debugger;
-    deleteAnnotationFromDb('testVideoID', annotation);
+    deleteAnnotationFromDb(videoID, annotation);
     let indexToDelete = annotationsByFrame[currentFrame].indexOf(annotation)
     if (indexToDelete >= 0) {
         annotationsByFrame[currentFrame].splice(indexToDelete, 1);
@@ -323,7 +323,6 @@ function hideFaceLabel() {
 }
 
 function add_new_face_id() {
-    debugger
     new_face = document.getElementById("myInput").value
     if(new_face != null){
         selectedAnnotationObject.setAnnotationId(new_face)
@@ -391,7 +390,7 @@ $(document).ready(function() {
     //Calculation of ratio will be done here
     xRatio = 1;
     yRatio = 1;
-    
+
     $("#vplayer").attr("src", videoURL);
 
     function setValuesForAnnotation(annotation, top, left, height, width){
@@ -535,7 +534,7 @@ $(document).ready(function() {
 
     $('#dltbutton').on('click', function() {
         if (selectedAnnotationObject != null) {
-            obj = selectedAnnotationObject
+            let obj = selectedAnnotationObject
             deselect_label(selectedAnnotationObject)
 
             deleteSingleAnnotation(obj);
