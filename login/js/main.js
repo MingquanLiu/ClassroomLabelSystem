@@ -61,7 +61,7 @@
                             // $("#loginstuff").remove();
                             // $("#loginheader").remove();
                             localStorage['userLoggedIn'] = username;
-                            var windowVar = window.open("video-select.html",'_self');
+                            var windowVar = window.open("login/video-select.html",'_self');
                         } 
                     } 
                 });
