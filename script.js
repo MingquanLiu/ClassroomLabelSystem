@@ -391,8 +391,59 @@ $(document).ready(function() {
     xRatio = 1;
     yRatio = 1;
 
-    $("#vplayer").attr("src", videoURL);
 
+    function createCORSRequest(method, url) {
+        var xhr = new XMLHttpRequest();
+        if ("withCredentials" in xhr) {
+            // XHR for Chrome/Firefox/Opera/Safari.
+            xhr.open(method, url, true);
+        } else if (typeof XDomainRequest != "undefined") {
+            // XDomainRequest for IE.
+            xhr = new XDomainRequest();
+            xhr.open(method, url);
+        } else {
+            // CORS not supported.
+            xhr = null;
+        }
+        return xhr;
+    }
+
+// Helper method to parse the title tag from the response.
+    function getTitle(text) {
+        return text.match('<title>(.*)?</title>')[1];
+    }
+
+// Make the actual CORS request.
+    function makeCorsRequest(url) {
+        // This is a sample server that supports CORS.
+        var xhr = createCORSRequest('GET', url);
+        if (!xhr) {
+            alert('CORS not supported');
+            return;
+        }
+
+        // Response handlers.
+        xhr.onload = function() {
+            var text = xhr.responseText;
+            var title = getTitle(text);
+            alert('Response from CORS request to ' + url + ': ' + title);
+        };
+
+        xhr.onerror = function() {
+            alert(xhr.errorCode)
+            alert('Woops, there was an error making the request.');
+        };
+
+        xhr.send();
+    }
+    //makeCorsRequest(videoURL)
+
+    var vp = document.getElementById("vplayer")
+    // $("#vplayer").attr("src", videoURL);
+    // $("#vplayer").attr("crossOrigin", "anonymous")
+    vp.src = videoURL
+    //vp.crossOrigin = "anonymous"
+    vp.load()
     function setValuesForAnnotation(annotation, top, left, height, width){
         if(top != null){
             annotation.css("top", top+'px');
@@ -608,18 +659,22 @@ $(document).ready(function() {
                 addAnnotation(newAnnotation, currentFrame);
                 selectedAnnotationObject = newAnnotation;
                 resetDrawingVariables()
-                let canvasHtml = jQuery('<canvas/>', {
-                    id: 'canvas',
-                });
-                canvasHtml.appendTo('#page_body');
+                // let canvasHtml = jQuery('<canvas/>', {
+                //     id: 'canvas',
+                // });
+                // canvasHtml.appendTo('#page_body');
                 //setValuesForAnnotation(canvasHtml, 0,0, selectedAnnotationObject.height, selectedAnnotationObject.width);
                 var ctx = document.getElementById("canvas").getContext("2d")
                 var video = document.getElementById("vplayer")
                 //ctx.drawImage(video, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
                 //ctx.drawImage(video, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height, selectedAnnotationObject.left, selectedAnnotationObject.top, 200, 200)
 
-                ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, 200, 200)
+                ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
 
+                var img = new Image()
+                var canvas = document.getElementById("canvas")
+                img.src = canvas.toDataURL()
+                img.appendTo('#page_body')
             }
         }else{
             if(clickMode){
