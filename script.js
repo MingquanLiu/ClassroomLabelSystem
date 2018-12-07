@@ -294,11 +294,16 @@ function showFaceLabel(annotation) {
             const faceId = $('<a>' + faceIdList[i] + '</a>');
             faceId.on('click', function () {
                 annotation.setAnnotationId(this.innerHTML)
-                debugger
                 updateAnnotationInDb(videoID, annotation)
 
                 document.getElementById("face_id_but").innerHTML = this.innerHTML
                 showDropDown()
+            })
+            faceId.on('mousemove', function (e) {
+                let image = $("#face_img")
+                image.attr("src",  "search_icon.png")
+                image.css("left", e.pageX+'px');
+                image.css("top", e.pageY+'px');
             })
             $("#myDropdown").append(faceId)
 
