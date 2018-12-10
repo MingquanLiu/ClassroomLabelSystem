@@ -353,6 +353,16 @@ function hideFaceLabel() {
     }
 }
 
+function checkFaceExist(faceID){
+    for (var i = 0; i<len(faceIdList);i++){
+        face = faceIdList[i]
+        if (face.identity == faceID){
+            return true
+        }
+    }
+    return false
+}
+
 function add_new_face_id() {
     new_face = document.getElementById("myInput").value
     if(new_face != null){
@@ -360,7 +370,7 @@ function add_new_face_id() {
         updateAnnotationInDb(videoID, selectedAnnotationObject)
         document.getElementById("face_id_but").innerHTML = new_face
         var faceI = new FaceIdentity(new_face, null)
-        if(!faceIdList.contains(faceI)){
+        if(!checkFaceExist(new_face)){
             var ctx = document.getElementById("canvas").getContext("2d")
             var video = document.getElementById("vplayer")
 
@@ -371,7 +381,6 @@ function add_new_face_id() {
             let image_file = canvas.toDataURL('image/png');
             // var w = window.open('about:blank', 'image from canvas')
             // w.document.write("<img src='"+image_file+"'/>")
-            addFaceIdentityToDb(videoID, loggedIn, 'testID', image_file)
             faceI.img = image_file
             faceIdList.push(faceI)
             addFaceIdentityToDb(videoID, loggedIn,faceI.identity,faceI.img)
