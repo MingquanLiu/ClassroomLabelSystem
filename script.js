@@ -411,24 +411,26 @@ $(document).ready(function() {
     function add_new_face_id() {
         new_face = document.getElementById("myInput").value
         if(new_face != null){
-            selectedAnnotationObject.setAnnotationId(new_face)
-            updateAnnotationInDb(videoID, selectedAnnotationObject)
-            document.getElementById("face_id_but").innerHTML = new_face
-            var faceI = new FaceIdentity(new_face, null)
-            if(!checkFaceExist(new_face)){
-                var ctx = document.getElementById("canvas").getContext("2d")
-                var video = document.getElementById("vplayer")
+            if(selectedAnnotationObject!=null){
+                selectedAnnotationObject.setAnnotationId(new_face)
+                updateAnnotationInDb(videoID, selectedAnnotationObject)
+                document.getElementById("face_id_but").innerHTML = new_face
+                var faceI = new FaceIdentity(new_face, null)
+                if(!checkFaceExist(new_face)){
+                    var ctx = document.getElementById("canvas").getContext("2d")
+                    var video = document.getElementById("vplayer")
 
-                ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
+                    ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
 
-                var img = $('<img id="test_img">');
-                var canvas = document.getElementById("canvas")
-                let image_file = canvas.toDataURL('image/png');
-                // var w = window.open('about:blank', 'image from canvas')
-                // w.document.write("<img src='"+image_file+"'/>")
-                faceI.img = image_file
-                faceIdList.push(faceI)
-                addFaceIdentityToDb(videoID, loggedIn,faceI.identity,faceI.img)
+                    var img = $('<img id="test_img">');
+                    var canvas = document.getElementById("canvas")
+                    let image_file = canvas.toDataURL('image/png');
+                    // var w = window.open('about:blank', 'image from canvas')
+                    // w.document.write("<img src='"+image_file+"'/>")
+                    faceI.img = image_file
+                    faceIdList.push(faceI)
+                    addFaceIdentityToDb(videoID, loggedIn,faceI.identity,faceI.img)
+                }
             }
 
             document.getElementById("myInput").value = ""
