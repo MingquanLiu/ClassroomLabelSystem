@@ -38,6 +38,17 @@ function loadStoredData(annotationsByFrame, videoID, annotatorID) {
     });
 }
 
+function addFaceIdentityToDb(videoID, user, id_string, image_file) {
+    let ref = firebase.database().ref().child('Annotations').child(videoID).child(user).child('identity');
+    ref.once('value', function(snapshot) {
+        ref.child(id_string).set(image_file)
+    });
+}
+
+function deleteFaceIdentityFromDb(videoID, user, id_string) {
+    firebase.database().ref().child('Annotations').child(videoID).child(annotation.user).child('identity').child(id_string).remove();
+}
+
 function addAnnotationToDb(videoID, user, annotation) {
     let ref = firebase.database().ref().child('Annotations').child(videoID).child(annotation.user);
     ref.once('value', function(snapshot) {

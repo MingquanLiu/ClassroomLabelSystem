@@ -292,6 +292,7 @@ function showFaceLabel(annotation) {
         document.getElementById("myInput").value = ""
         for( var i = 0; i < faceIdList.length; i++){
             const faceId = $('<a>' + faceIdList[i] + '</a>');
+            let currID = faceIdList[i];
             faceId.on('click', function () {
                 annotation.setAnnotationId(this.innerHTML)
                 updateAnnotationInDb(videoID, annotation)
@@ -680,8 +681,9 @@ $(document).ready(function() {
                 var canvas = document.getElementById("canvas")
                 debugger;
                 let image_file = canvas.toDataURL('image/png');
-                var w = window.open('about:blank', 'image from canvas')
-                w.document.write("<img src='"+image_file+"'/>")
+                // var w = window.open('about:blank', 'image from canvas')
+                // w.document.write("<img src='"+image_file+"'/>")
+                addFaceIdentityToDb(videoID, loggedIn, 'testID', image_file)
                 img.attr('src',  image_file)
                 img.appendTo('#page_body')
             }
