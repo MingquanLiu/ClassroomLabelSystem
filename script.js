@@ -360,25 +360,26 @@ function add_new_face_id() {
         updateAnnotationInDb(videoID, selectedAnnotationObject)
         document.getElementById("face_id_but").innerHTML = new_face
         var faceI = new FaceIdentity(new_face, null)
-        faceIdList.push(faceI)
+        if(!faceIdList.contains(faceI)){
+            var ctx = document.getElementById("canvas").getContext("2d")
+            var video = document.getElementById("vplayer")
+
+            ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
+
+            var img = $('<img id="test_img">');
+            var canvas = document.getElementById("canvas")
+            let image_file = canvas.toDataURL('image/png');
+            // var w = window.open('about:blank', 'image from canvas')
+            // w.document.write("<img src='"+image_file+"'/>")
+            addFaceIdentityToDb(videoID, loggedIn, 'testID', image_file)
+            faceI.img = image_file
+            faceIdList.push(faceI)
+            addFaceIdentityToDb(videoID, loggedIn,faceI.identity,faceI.img)
+        }
+
         document.getElementById("myInput").value = ""
 
-        //Adding an image
-        // var ctx = document.getElementById("canvas").getContext("2d")
-        // var video = document.getElementById("vplayer")
-        //
-        // ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
-        //
-        // var img = $('<img id="test_img">');
-        // var canvas = document.getElementById("canvas")
-        // debugger;
-        // let image_file = canvas.toDataURL('image/png');
-        // // var w = window.open('about:blank', 'image from canvas')
-        // // w.document.write("<img src='"+image_file+"'/>")
-        // addFaceIdentityToDb(videoID, loggedIn, 'testID', image_file)
-        // img.attr('src',  image_file)
-        // img.appendTo('#page_body')
-        addFaceIdentityToDb(videoID, loggedIn,faceI.identity,"aaaa")
+
 
         for( var i = 0; i < faceIdList.length; i++){
             const faceId = $('<a>' + faceIdList[i].identity + '</a>');
