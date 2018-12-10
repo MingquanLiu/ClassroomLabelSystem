@@ -22,13 +22,18 @@
         Welcome to the Classroom Video Labelling System!
     </h1>
 </div>
+<div >
+    <button id="logout" class = logout>
+        Logout
+    </button>
+</div>
 
 <div id="center_box">
     <div id="video_box">
     <!--<div id="myCanvas"></div>-->
 
         <div id="vplayer_container">
-            <video crossorigin="anonymous" class = "video" id="vplayer" ontimeupdate="change_slider()"  onloadeddata="resize_slider()" onended="video_ended()"></video>
+            <video  src= "Sample1280.mp4"class = "video" id="vplayer" ontimeupdate="change_slider()"  onloadeddata="resize_slider()" onended="video_ended()"></video>
         </div>
     </div>
     <div id="rightsidemenu" class="right_side_menu">
@@ -49,7 +54,7 @@
 </div>
 <div>
     <div id='slider' class="slidecontainer">
-        <input type="range" min="0" max="100" value="0" class="slider" id="myRange" oninput="show_slider_value()">
+        <input type="range" min="0" max="100" value="1" class="slider" id="myRange" oninput="show_slider_value()">
     </div>
 </div>
 <div id="bottom" class="vcontrols">

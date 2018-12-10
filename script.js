@@ -1,7 +1,7 @@
 /* @AUTHOR David Swenarton & Mingquan Liu */
 
 var currentFrame = 1
-var frameDuration = 0.5
+var frameDuration = 0.1
 var selectedAnnotationObject = null
 var annotationsByFrame = {};
 var videoURL = localStorage['videoURL'];
@@ -13,6 +13,21 @@ var faceIdList = []
 var xRatio = 1
 var yRatio = 1
 
+function change_frame_duration(fd) {
+    frameDuration =fd
+}
+
+function reset_slider(){
+    var slider = document.getElementById("myRange");
+    slider.value = 0
+    var output = document.getElementById("demo");
+    var mediaElement = $("#vplayer").get(0);
+    var duration = mediaElement.duration;
+    output.innerHTML ="0:00" + " / " + duration.toFixed(2)
+}
+function printIt(){
+    console.log(frameDuration)
+}
 class Annotation {
 
     constructor(user, frame, html, emotions) {
@@ -270,6 +285,9 @@ function change_slider() {
     var slider = document.getElementById("myRange");
     var output = document.getElementById("demo");
     var percentage = parseFloat(time / duration).toFixed(2) * 100
+    if (duration == null){
+        console.log("null")
+    }
     slider.value = percentage;
     output.innerHTML = time.toFixed(2) + " / " + duration.toFixed(2)
 	updateAnnotationsOnFrameChange(time);
@@ -418,30 +436,6 @@ $(document).ready(function() {
         return text.match('<title>(.*)?</title>')[1];
     }
 
-// Make the actual CORS request.
-    function makeCorsRequest(url) {
-        // This is a sample server that supports CORS.
-        var xhr = createCORSRequest('GET', url);
-        if (!xhr) {
-            alert('CORS not supported');
-            return;
-        }
-
-        // Response handlers.
-        xhr.onload = function() {
-            var text = xhr.responseText;
-            var title = getTitle(text);
-            alert('Response from CORS request to ' + url + ': ' + title);
-        };
-
-        xhr.onerror = function() {
-            alert(xhr.errorCode)
-            alert('Woops, there was an error making the request.');
-        };
-
-        xhr.send();
-    }
-    //makeCorsRequest(videoURL)
 
     var vp = document.getElementById("vplayer")
     // $("#vplayer").attr("src", videoURL);
@@ -481,21 +475,31 @@ $(document).ready(function() {
         }
     }
 
-    function drawingLogic(x, y){
+    function drawingLogic(x,y){
+
         let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
-        let top = (drawingAnnotationY <y)?drawingAnnotationY:y;
-        let width = (drawingAnnotationX < x)?(x-drawingAnnotationX):(drawingAnnotationX-x);
-        let height = (drawingAnnotationY < y)?(y-drawingAnnotationY):(drawingAnnotationY-y);
+        let top = (drawingAnnotationY >y)?y:drawingAnnotationY;
+        if(left < pageX){
+            left = pageX
+        }
+        if(top < pageY){
+            top = pageY
+        }
+        let width = (drawingAnnotationX < x)?(x-left):(drawingAnnotationX-left);
+        let height = (drawingAnnotationY < y)?(y-top):(drawingAnnotationY-top);
         let vHeight = parseInt($('#vplayer').css('height'),10)
         let vWidth = parseInt($('#vplayer').css('width'),10)
-        if( (pageY+vHeight)<(top+height)){
+
+        if( (pageY + vHeight)<(top+height)){
             height = pageY+vHeight- top;
         }
-        if((pageX+vWidth) <(left+width)){
+        if((pageX + vWidth) <(left+width)){
             width = pageX+ vWidth - left;
         }
+
         setValuesForAnnotation(drawingAnnotation, top, left, height, width)
     }
+
 
     function resetDrawingVariables(){
         $('#video_box').css('cursor', "default");
@@ -532,6 +536,10 @@ $(document).ready(function() {
 
     initializeDb();
     loadStoredData(annotationsByFrame, videoID, loggedIn)
+    loadFrameDuration(frameDuration,videoID,loggedIn)
+
+
+
 
     $('#page_body').on('mouseup', function (e) {
         if(drawmode){
@@ -549,34 +557,25 @@ $(document).ready(function() {
         if(clickMode == true)
             clickMode = false;
     })
-    // $('#page_body').on('mousemove', function (e) {
-    //     if(drawmode) {
-    //         if (mouse_flag) {
-    //             const x = e.pageX;
-    //             const y = e.pageY;
 
-    //             let left = (drawingAnnotationX > x)?x:drawingAnnotationX;
-    //             let top = (drawingAnnotationY >y)?y:drawingAnnotationY;
-    //             left = (left<pageX)?pageX:left
-    //             top = (top<pageY)?pageY:top
-    //             let width = Math.abs(x-drawingAnnotationX);
-    //             let height = Math.abs(y-drawingAnnotationY);
-    //             let vHeight = parseInt($('#vplayer').css('height'),10)
-    //             let vWidth = parseInt($('#vplayer').css('width'),10)
-    //             if( (pageY+vHeight)<(top+height)){
-    //                 height = pageY+vHeight- top;
-    //             }
-    //             if((pageX+vWidth) <(left+width)){
-    //                 width = pageX+ vWidth - left;
-    //             }
+    $('#page_body').on('mousemove', function (e) {
+        const x = e.pageX;
+        const y = e.pageY;
+        if(drawmode) {
+            if (mouse_flag) {
+                drawingLogic(x, y)
+            }
+        }else{
+            if(clickMode){
+                movingLogic(x, y)
+            }
+        }
+    });
 
-    //             drawingAnnotation.css("top", top+'px');
-    //             drawingAnnotation.css("left", left+'px');
-    //             drawingAnnotation.css("width", width+'px');
-    //             drawingAnnotation.css("height", height+'px');
-    //         }
-    //     }
-    // });
+    $('#logout').on("click",function (e) {
+        window.open("index.html",'_self');
+    });
+
 
     $('#drawbutton').on('click', function () {
         if (drawmode == true) {
@@ -693,5 +692,4 @@ $(document).ready(function() {
             }
         }
     });
-
 });

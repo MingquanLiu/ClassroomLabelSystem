@@ -100,6 +100,18 @@ function updateAnnotationIdInDb(videoURL, annotatorID, annotation, frame) {
     return 0;
 }
 
+function loadFrameDuration(frameDuration, videoId, annotatorId){
+    var leadsRef = firebase.database().ref().child('Annotations').child(videoId).child(annotatorId)
+    leadsRef.once('value', function(snapshot) {
+        if (snapshot.hasChild("frameduration")) {
+                frameDuration = snapshot.child("frameduration").val()
+                console.log("frameduration")
+        }
+        change_frame_duration(frameDuration)
+        reset_slider()
+    });
+}
+
 function dbToUITransform(annotation, xRatio, yRatio){ // XY ratio are currentX/originalX
 	let top = annotation.top
 	let left = annotation.left
