@@ -11,7 +11,29 @@ function initializeDb() {
     firebase.initializeApp(config);
 }
 
-function loadStoredData(annotationsByFrame, videoID, annotatorID) {
+function loadFrameDuration(frameDuration, videoId, annotatorId){
+    var leadsRef = firebase.database().ref().child('Annotations').child(videoId).child(annotatorId)
+    leadsRef.once('value', function(snapshot) {
+        if (snapshot.hasChild("frameduration")) {
+            frameDuration = snapshot.child("frameduration").val()
+            console.log("frameduration")
+        }
+        change_frame_duration(frameDuration)
+        reset_slider()
+    });
+}
+
+function loadFaceIdList(videoId, annotatorId){
+    var initref = firebase.database().ref().child('Annotations').child(videoId).child(annotatorId);
+    initref.once('value').then(function(snapshot) {
+        if(snapshot.hasChild("identity")){
+
+        }
+        printIt()
+    });
+}
+
+function loadStoredData(annotationsByFrame,frameDuration, videoID, annotatorID) {
     let annotationsByFrameTemp = {}
     var initref = firebase.database().ref().child('Annotations').child(videoID).child(annotatorID);
     initref.once('value').then(function(snapshot) {
@@ -19,22 +41,36 @@ function loadStoredData(annotationsByFrame, videoID, annotatorID) {
         snapshot.forEach(function(childSnapshot) {
             let frameKey = childSnapshot.key;
             var childData = childSnapshot.val();
-            for (var dbAnnotationKey in childData) {
-                let dbAnnotation = childData[dbAnnotationKey];
-                let newAnno = new Annotation(dbAnnotation['user'], frameKey, null, dbAnnotation["emotions"]);
-                newAnno.setDBValues(dbAnnotation["top"],dbAnnotation["left"],dbAnnotation["width"],dbAnnotation["height"]);
-                newAnno.setAnnotationId(dbAnnotation["id"]);
-                newAnno.setDbId(dbAnnotationKey)
-                if (frameKey in annotationsByFrame) {
-                    annotationsByFrame[frameKey].push(newAnno);
-                } else {
-                    annotationsByFrame[frameKey] = [];
-                    annotationsByFrame[frameKey].push(newAnno);
+            if(frameKey == "frameduration"){
+                frameDuration = snapshot.child("frameduration").val()
+                console.log("frameduration")
+            }else if(frameKey =="identity"){
+                snapshot.child("identity").forEach(function (child) {
+                    var faceIdentity = new FaceIdentity(child.key, child.val())
+                    faceIdList.push(faceIdentity)
+                })
+            }else{
+                for (var dbAnnotationKey in childData) {
+                    let dbAnnotation = childData[dbAnnotationKey];
+                    let newAnno = new Annotation(dbAnnotation['user'], frameKey, null, dbAnnotation["emotions"]);
+                    newAnno.setDBValues(dbAnnotation["top"],dbAnnotation["left"],dbAnnotation["width"],dbAnnotation["height"]);
+                    newAnno.setAnnotationId(dbAnnotation["id"]);
+                    newAnno.setDbId(dbAnnotationKey)
+                    if (frameKey in annotationsByFrame) {
+                        annotationsByFrame[frameKey].push(newAnno);
+                    } else {
+                        annotationsByFrame[frameKey] = [];
+                        annotationsByFrame[frameKey].push(newAnno);
+                    }
                 }
             }
         });
-        loadFaceIdList();
+        if (frameDuration != null){
+            change_frame_duration(frameDuration)
+        }
         updateAnnotationsOnFrameChange(0);
+        reset_slider()
+        printIt()
     });
 }
 
@@ -111,17 +147,7 @@ function updateAnnotationIdInDb(videoURL, annotatorID, annotation, frame) {
     return 0;
 }
 
-function loadFrameDuration(frameDuration, videoId, annotatorId){
-    var leadsRef = firebase.database().ref().child('Annotations').child(videoId).child(annotatorId)
-    leadsRef.once('value', function(snapshot) {
-        if (snapshot.hasChild("frameduration")) {
-                frameDuration = snapshot.child("frameduration").val()
-                console.log("frameduration")
-        }
-        change_frame_duration(frameDuration)
-        reset_slider()
-    });
-}
+
 
 function dbToUITransform(annotation, xRatio, yRatio){ // XY ratio are currentX/originalX
 	let top = annotation.top
@@ -159,7 +185,3 @@ function UITodbTransform(annotation, xRatio, yRatio){ // XY ratio are currentX/o
     return annotation
 }
 
-function loadFaceIdList(){
-    faceIdList.push( "Mike")
-    faceIdList.push( "Jerry")
-}

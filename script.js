@@ -1,7 +1,7 @@
 /* @AUTHOR David Swenarton & Mingquan Liu */
 
 var currentFrame = 1
-var frameDuration = 0.1
+var frameDuration = null
 var selectedAnnotationObject = null
 var annotationsByFrame = {};
 var videoURL = localStorage['videoURL'];
@@ -26,7 +26,14 @@ function reset_slider(){
     output.innerHTML ="0:00" + " / " + duration.toFixed(2)
 }
 function printIt(){
-    console.log(frameDuration)
+    console.log(faceIdList)
+}
+
+class FaceIdentity{
+    constructor(identity, img) {
+        this.identity = identity
+        this.img = img
+    }
 }
 class Annotation {
 
@@ -309,8 +316,8 @@ function showFaceLabel(annotation) {
     else{
         document.getElementById("myInput").value = ""
         for( var i = 0; i < faceIdList.length; i++){
-            const faceId = $('<a>' + faceIdList[i] + '</a>');
-            let currID = faceIdList[i];
+            const faceId = $('<a>' + faceIdList[i].identity + '</a>');
+            let currID = faceIdList[i].identity;
             faceId.on('click', function () {
                 annotation.setAnnotationId(this.innerHTML)
                 updateAnnotationInDb(videoID, annotation)
@@ -352,10 +359,29 @@ function add_new_face_id() {
         selectedAnnotationObject.setAnnotationId(new_face)
         updateAnnotationInDb(videoID, selectedAnnotationObject)
         document.getElementById("face_id_but").innerHTML = new_face
-        faceIdList.push(new_face)
+        var faceI = new FaceIdentity(new_face, null)
+        faceIdList.push(faceI)
         document.getElementById("myInput").value = ""
+
+        //Adding an image
+        // var ctx = document.getElementById("canvas").getContext("2d")
+        // var video = document.getElementById("vplayer")
+        //
+        // ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
+        //
+        // var img = $('<img id="test_img">');
+        // var canvas = document.getElementById("canvas")
+        // debugger;
+        // let image_file = canvas.toDataURL('image/png');
+        // // var w = window.open('about:blank', 'image from canvas')
+        // // w.document.write("<img src='"+image_file+"'/>")
+        // addFaceIdentityToDb(videoID, loggedIn, 'testID', image_file)
+        // img.attr('src',  image_file)
+        // img.appendTo('#page_body')
+        addFaceIdentityToDb(videoID, loggedIn,faceI.identity,"aaaa")
+
         for( var i = 0; i < faceIdList.length; i++){
-            const faceId = $('<a>' + faceIdList[i] + '</a>');
+            const faceId = $('<a>' + faceIdList[i].identity + '</a>');
             faceId.on('click', function () {
                 selectedAnnotationObject.setAnnotationId(this.innerHTML)
                 debugger
@@ -536,9 +562,9 @@ $(document).ready(function() {
     }
 
     initializeDb();
-    loadStoredData(annotationsByFrame, videoID, loggedIn)
-    loadFrameDuration(frameDuration,videoID,loggedIn)
-
+    loadStoredData(annotationsByFrame,frameDuration, videoID, loggedIn)
+    // loadFrameDuration(frameDuration,videoID,loggedIn)
+    // loadFaceIdList(videoID, loggedIn)
 
 
 
@@ -664,27 +690,6 @@ $(document).ready(function() {
                 addAnnotation(newAnnotation, currentFrame);
                 selectedAnnotationObject = newAnnotation;
                 resetDrawingVariables()
-                // let canvasHtml = jQuery('<canvas/>', {
-                //     id: 'canvas',
-                // });
-                // canvasHtml.appendTo('#page_body');
-                //setValuesForAnnotation(canvasHtml, 0,0, selectedAnnotationObject.height, selectedAnnotationObject.width);
-                var ctx = document.getElementById("canvas").getContext("2d")
-                var video = document.getElementById("vplayer")
-                //ctx.drawImage(video, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
-                //ctx.drawImage(video, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height, selectedAnnotationObject.left, selectedAnnotationObject.top, 200, 200)
-
-                ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
-
-                var img = $('<img id="test_img">');
-                var canvas = document.getElementById("canvas")
-                debugger;
-                let image_file = canvas.toDataURL('image/png');
-                // var w = window.open('about:blank', 'image from canvas')
-                // w.document.write("<img src='"+image_file+"'/>")
-                addFaceIdentityToDb(videoID, loggedIn, 'testID', image_file)
-                img.attr('src',  image_file)
-                img.appendTo('#page_body')
             }
         }else{
             if(clickMode){
