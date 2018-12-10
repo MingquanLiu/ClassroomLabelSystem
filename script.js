@@ -354,7 +354,7 @@ function hideFaceLabel() {
 }
 
 function checkFaceExist(faceID){
-    for (var i = 0; i<len(faceIdList);i++){
+    for (var i = 0; i<faceIdList.length;i++){
         face = faceIdList[i]
         if (face.identity == faceID){
             return true
