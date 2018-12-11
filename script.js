@@ -435,8 +435,8 @@ $(document).ready(function() {
                     var ctx = document.getElementById("canvas").getContext("2d")
                     var video = document.getElementById("vplayer")
 
-                    ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
-
+                    //ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
+                    ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, 25,25)
                     var img = $('<img id="test_img">');
                     var canvas = document.getElementById("canvas")
                     let image_file = canvas.toDataURL('image/png');
