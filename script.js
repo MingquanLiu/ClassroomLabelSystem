@@ -410,13 +410,18 @@ $(document).ready(function() {
 
     function add_new_face_id() {
         new_face = document.getElementById("myInput").value
+        debugger
+        console.log("In function")
         if(new_face != null){
+            console.log("new_face not null")
             if(selectedAnnotationObject!=null){
+                console.log("new annotation not null")
                 selectedAnnotationObject.setAnnotationId(new_face)
                 updateAnnotationInDb(videoID, selectedAnnotationObject)
                 document.getElementById("face_id_but").innerHTML = new_face
                 var faceI = new FaceIdentity(new_face, null)
                 if(!checkFaceExist(new_face)){
+                    console.log("face not exist")
                     var ctx = document.getElementById("canvas").getContext("2d")
                     var video = document.getElementById("vplayer")
 
