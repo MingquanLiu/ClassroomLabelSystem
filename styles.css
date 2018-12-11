@@ -277,8 +277,9 @@ body{
     position: absolute;
 }
 .img{
+    /*position: absolute;*/
     border: 2px solid;
-    background-color: rgba(0, 128, 0, 0.1)
+    background-color: rgba(0, 128, 0, 0.1);
 }
 
 .canvas{
