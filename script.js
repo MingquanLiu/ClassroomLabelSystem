@@ -427,7 +427,7 @@ $(document).ready(function() {
         new_face = document.getElementById("myInput").value
         debugger
         console.log("In function")
-        if(new_face != null){
+        if(new_face != null&& new_face!=""){
             console.log("new_face not null")
             if(selectedAnnotationObject!=null){
                 console.log("new annotation not null")
@@ -441,7 +441,7 @@ $(document).ready(function() {
                     var video = document.getElementById("vplayer")
 
                     //ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, selectedAnnotationObject.width, selectedAnnotationObject.height)
-                    ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, 35, 35)
+                    ctx.drawImage(video, selectedAnnotationObject.left-pageX, selectedAnnotationObject.top-pageY, selectedAnnotationObject.width, selectedAnnotationObject.height, 0, 0, 40, 40)
                     var img = $('<img id="test_img">');
                     var canvas = document.getElementById("canvas")
                     let image_file = canvas.toDataURL('image/png');
