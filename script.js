@@ -566,7 +566,7 @@ $(document).ready(function() {
     // loadFrameDuration(frameDuration,videoID,loggedIn)
     // loadFaceIdList(videoID, loggedIn)
 
-    $('#add_new').on('click', add_new_face_id())
+    $('#add_new').on('click', add_new_face_id)
     // $('#add_new').attr("display","none")
 
     $('#page_body').on('mouseup', function (e) {
