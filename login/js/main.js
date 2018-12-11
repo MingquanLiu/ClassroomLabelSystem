@@ -62,8 +62,16 @@
                             // $("#loginheader").remove();
                             localStorage['userLoggedIn'] = username;
                             var windowVar = window.open("login/video-select.html",'_self');
-                        } 
-                    } 
+                        } else {
+                            $("#usernametxt").val("");
+                            $("#passwordtxt").val("");
+                            alert("Incorrect password! Please try again!")
+                        }
+                    } else {
+                        $("#usernametxt").val("");
+                        $("#passwordtxt").val("");
+                        alert("Invalid username/password combination. Please try again!")
+                    }
                 });
             });
         }
