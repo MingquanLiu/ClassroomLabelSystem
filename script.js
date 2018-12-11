@@ -307,6 +307,15 @@ function showDropDown() {
     document.getElementById("add_new").classList.toggle("show")
 }
 
+function findFace(faceId){
+    for (var i = 0; i<faceIdList.length;i++){
+        var face = faceIdList[i]
+        if (face.identity == faceId){
+            return face
+        }
+    }
+    return null
+}
 function showFaceLabel(annotation) {
 
     if( $("#face_id_but").is(':visible')){
@@ -327,7 +336,8 @@ function showFaceLabel(annotation) {
             })
             faceId.on('mousemove', function (e) {
                 let image = $("#face_img")
-                image.attr("src",  "search_icon.png")
+                var face = findFace(this.innerHTML)
+                image.attr("src",  face.img);
                 image.css("left", e.pageX+'px');
                 image.css("top", e.pageY+'px');
             })
