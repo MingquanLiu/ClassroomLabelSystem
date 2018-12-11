@@ -452,21 +452,46 @@ $(document).ready(function() {
                     addFaceIdentityToDb(videoID, loggedIn,faceI.identity,faceI.img)
                 }
                 document.getElementById("myInput").value = ""
+                // for( var i = 0; i < faceIdList.length; i++){
+                //     const faceId = $('<a>' + faceIdList[i].identity + '</a>');
+                //     faceId.on('click', function () {
+                //         selectedAnnotationObject.setAnnotationId(this.innerHTML)
+                //         debugger
+                //         updateAnnotationInDb(videoID, selectedAnnotationObject)
+                //
+                //         document.getElementById("face_id_but").innerHTML = this.innerHTML
+                //         showDropDown()
+                //     })
+                //     $("#myDropdown").append(faceId)
+                //
+                // }
                 for( var i = 0; i < faceIdList.length; i++){
                     const faceId = $('<a>' + faceIdList[i].identity + '</a>');
                     faceId.on('click', function () {
-                        selectedAnnotationObject.setAnnotationId(this.innerHTML)
-                        debugger
-                        updateAnnotationInDb(videoID, selectedAnnotationObject)
+                        annotation.setAnnotationId(this.innerHTML)
+                        updateAnnotationInDb(videoID, annotation)
 
                         document.getElementById("face_id_but").innerHTML = this.innerHTML
                         showDropDown()
                     })
+                    faceId.on('mousemove', function (e) {
+                        let image = $("#face_img")
+                        image.toggle(true)
+                        var face = findFace(this.innerHTML)
+                        image.attr("src",  face.img);
+                        image.css("left", (e.pageX+10)+'px');
+                        image.css("top", e.pageY+'px');
+                        showFace = true
+                    })
                     $("#myDropdown").append(faceId)
-
                 }
+                $("#myDropdown").on("mouseleave", function (e) {
+                    let image = $("#face_img")
+                    image.toggle(false)
+                })
                 showDropDown()
             }
+
 
         }
     }
