@@ -400,7 +400,7 @@ $(document).ready(function() {
 
     function checkFaceExist(faceID){
         for (var i = 0; i<faceIdList.length;i++){
-            face = faceIdList[i]
+            var face = faceIdList[i]
             if (face.identity == faceID){
                 return true
             }
@@ -431,26 +431,23 @@ $(document).ready(function() {
                     faceIdList.push(faceI)
                     addFaceIdentityToDb(videoID, loggedIn,faceI.identity,faceI.img)
                 }
+                document.getElementById("myInput").value = ""
+                for( var i = 0; i < faceIdList.length; i++){
+                    const faceId = $('<a>' + faceIdList[i].identity + '</a>');
+                    faceId.on('click', function () {
+                        selectedAnnotationObject.setAnnotationId(this.innerHTML)
+                        debugger
+                        updateAnnotationInDb(videoID, selectedAnnotationObject)
+
+                        document.getElementById("face_id_but").innerHTML = this.innerHTML
+                        showDropDown()
+                    })
+                    $("#myDropdown").append(faceId)
+
+                }
+                showDropDown()
             }
 
-            document.getElementById("myInput").value = ""
-
-
-
-            for( var i = 0; i < faceIdList.length; i++){
-                const faceId = $('<a>' + faceIdList[i].identity + '</a>');
-                faceId.on('click', function () {
-                    selectedAnnotationObject.setAnnotationId(this.innerHTML)
-                    debugger
-                    updateAnnotationInDb(videoID, selectedAnnotationObject)
-
-                    document.getElementById("face_id_but").innerHTML = this.innerHTML
-                    showDropDown()
-                })
-                $("#myDropdown").append(faceId)
-
-            }
-            showDropDown()
         }
     }
 
@@ -565,6 +562,7 @@ $(document).ready(function() {
     // loadFaceIdList(videoID, loggedIn)
 
     $('#add_new').on('click', add_new_face_id())
+    // $('#add_new').attr("display","none")
 
     $('#page_body').on('mouseup', function (e) {
         if(drawmode){
