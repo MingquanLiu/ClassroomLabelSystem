@@ -278,6 +278,9 @@ body{
 }
 .img{
     /*position: absolute;*/
+    width: 25px;
+    height: 25px;
+    border-radius: 8px;
     border: 2px solid;
     background-color: rgba(0, 128, 0, 0.1);
 }

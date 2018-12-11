@@ -7,7 +7,7 @@ var annotationsByFrame = {};
 var videoURL = localStorage['videoURL'];
 var videoID = localStorage['videoID'];
 var loggedIn = localStorage['userLoggedIn'];
-
+var showFace = false
 var faceIdList = []
 
 var xRatio = 1
@@ -336,14 +336,19 @@ function showFaceLabel(annotation) {
             })
             faceId.on('mousemove', function (e) {
                 let image = $("#face_img")
+                image.toggle(true)
                 var face = findFace(this.innerHTML)
                 image.attr("src",  face.img);
-                image.css("left", e.pageX+'px');
+                image.css("left", (e.pageX+10)+'px');
                 image.css("top", e.pageY+'px');
+                showFace = true
             })
             $("#myDropdown").append(faceId)
-
         }
+        $("#myDropdown").on("mouseleave", function (e) {
+            let image = $("#face_img")
+            image.toggle(false)
+        })
         document.getElementById("face_id_but").classList.toggle("show");
         document.getElementById("face_id_but").innerHTML = annotation.annotationID
     }
@@ -607,6 +612,9 @@ $(document).ready(function() {
             if(clickMode){
                 movingLogic(x, y)
             }
+        }
+        if(showFace){
+
         }
     });
 
