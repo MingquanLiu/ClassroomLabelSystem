@@ -268,6 +268,7 @@ function change_frame(isNext) {
 function restart_video() {
     $("#vplayer").get(0).currentTime = 0.0
     $("#vplayer").get(0).play();
+    document.getElementById("playbutton").innerText = "Pause"
 }
 
 function rewind_video() {
@@ -480,7 +481,7 @@ $(document).ready(function() {
                         var face = findFace(this.innerHTML)
                         image.attr("src",  face.img);
                         image.css("left", (e.pageX+10)+'px');
-                        image.css("top", e.pageY+'px');
+                        image.css("top", (e.pageY+10)+'px');
                         showFace = true
                     })
                     $("#myDropdown").append(faceId)
