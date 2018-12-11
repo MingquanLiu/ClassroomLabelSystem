@@ -38,6 +38,7 @@ function loadStoredData(annotationsByFrame,frameDuration, videoID, annotatorID) 
     var initref = firebase.database().ref().child('Annotations').child(videoID).child(annotatorID);
     initref.once('value').then(function(snapshot) {
         console.log(snapshot.childrenCount);
+        var exist = false
         snapshot.forEach(function(childSnapshot) {
             let frameKey = childSnapshot.key;
             var childData = childSnapshot.val();

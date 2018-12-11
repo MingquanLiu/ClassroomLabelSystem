@@ -1,7 +1,7 @@
 /* @AUTHOR David Swenarton & Mingquan Liu */
 
 var currentFrame = 1
-var frameDuration = null
+var frameDuration = 0.5
 var selectedAnnotationObject = null
 var annotationsByFrame = {};
 var videoURL = localStorage['videoURL'];
